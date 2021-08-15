@@ -6,3 +6,4 @@ pub type SortExpression = String;
 pub type Expression = String;
 pub type Condition = String;
 pub type Column = String;
+pub type OutputExpression = String;
