@@ -1,5 +1,5 @@
 use std::fmt::{self, Display, Formatter};
-use std::iter::{once, Chain, Once};
+use std::iter::{once, Once};
 
 use itertools::Itertools;
 
@@ -142,91 +142,91 @@ impl JoinBuilder {
 /* Flexible join-building thing */
 
 pub trait Joinable {
-    fn join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn inner_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn left_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn left_outer_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn right_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn right_outer_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn full_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn full_outer_join(self, to: impl ToFromItem) -> JoinBuilder;
-    fn cross_join(self, to: impl ToFromItem) -> FromItem;
+    fn join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn inner_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn left_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn left_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn right_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn right_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn full_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn full_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder;
+    fn cross_join(self, to: impl Into<FromItem>) -> FromItem;
 }
 
 impl<T> Joinable for T
 where
-    T: ToFromItem,
+    T: Into<FromItem>,
 {
-    fn join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::Unspecified,
         }
     }
 
-    fn inner_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn inner_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::Inner,
         }
     }
 
-    fn left_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn left_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::Left,
         }
     }
 
-    fn left_outer_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn left_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::LeftOuter,
         }
     }
 
-    fn right_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn right_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::Right,
         }
     }
 
-    fn right_outer_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn right_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::RightOuter,
         }
     }
 
-    fn full_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn full_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::Full,
         }
     }
 
-    fn full_outer_join(self, to: impl ToFromItem) -> JoinBuilder {
+    fn full_outer_join(self, to: impl Into<FromItem>) -> JoinBuilder {
         JoinBuilder {
-            from: self.to_from_item(),
-            to: to.to_from_item(),
+            from: self.into(),
+            to: to.into(),
             type_: JoinType::FullOuter,
         }
     }
 
-    fn cross_join(self, to: impl ToFromItem) -> FromItem {
-        let mut from = self.to_from_item();
+    fn cross_join(self, to: impl Into<FromItem>) -> FromItem {
+        let mut from = self.into();
 
         from.joins.push(Join {
             type_: JoinType::Cross,
-            to: to.to_from_item(),
+            to: to.into(),
             condition: None,
         });
 
@@ -236,76 +236,42 @@ where
 
 /* Conversions */
 
-pub trait ToFromItem {
-    fn to_from_item(self) -> FromItem;
-}
-
-impl ToFromItem for String {
-    fn to_from_item(self) -> FromItem {
-        FromItem::new(self)
+impl From<String> for FromItem {
+    fn from(other: String) -> FromItem {
+        FromItem::new(other)
     }
 }
 
-impl ToFromItem for &str {
-    fn to_from_item(self) -> FromItem {
-        FromItem::new(self.to_string())
+impl From<&str> for FromItem {
+    fn from(other: &str) -> FromItem {
+        FromItem::new(other.to_string())
     }
 }
 
-impl ToFromItem for FromItem {
-    fn to_from_item(self) -> FromItem {
-        self
+impl From<Alias> for FromItem {
+    fn from(other: Alias) -> FromItem {
+        FromItem::new(other.to_string())
     }
 }
 
-impl ToFromItem for Alias {
-    fn to_from_item(self) -> FromItem {
-        FromItem::new(self.to_string())
+impl From<Select> for FromItem {
+    fn from(other: Select) -> FromItem {
+        FromItem::new(format!("({})", other))
     }
 }
 
-impl ToFromItem for Select {
-    fn to_from_item(self) -> FromItem {
-        FromItem::new(format!("({})", self))
-    }
-}
-
-/* Iterator flexibility support */
-
-impl<T> IntoSomeIterator<FromItem> for T
-where
-    T: ToFromItem,
-{
+impl IntoSomeIterator<FromItem> for Select {
     type Iterator = Once<FromItem>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.to_from_item())
+        once(self.into())
     }
 }
 
-impl<A, B> IntoSomeIterator<FromItem> for (A, B)
-where
-    A: ToFromItem,
-    B: ToFromItem,
-{
-    type Iterator = Chain<Once<FromItem>, Once<FromItem>>;
+impl<T> IntoSomeIterator<T> for FromItem where T: From<FromItem> {
+    type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.to_from_item()).chain(once(self.1.to_from_item()))
-    }
-}
-
-impl<A, B, C> IntoSomeIterator<FromItem> for (A, B, C)
-where
-    A: ToFromItem,
-    B: ToFromItem,
-    C: ToFromItem,
-{
-    type Iterator = Chain<Chain<Once<FromItem>, Once<FromItem>>, Once<FromItem>>;
-
-    fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.to_from_item())
-            .chain(once(self.1.to_from_item()))
-            .chain(once(self.2.to_from_item()))
+        once(self.into())
     }
 }

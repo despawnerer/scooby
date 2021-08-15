@@ -1,6 +1,8 @@
+use std::iter::{Once, once};
 use std::fmt::{self, Display, Formatter};
 
 use crate::select::Select;
+use crate::tools::IntoSomeIterator;
 
 pub struct Alias {
     original: String,
@@ -10,6 +12,12 @@ pub struct Alias {
 impl Display for Alias {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{} AS {}", self.original, self.alias)
+    }
+}
+
+impl From<Alias> for String {
+    fn from(alias: Alias) -> Self {
+        alias.to_string()
     }
 }
 
@@ -35,5 +43,13 @@ impl Aliasable for Select {
             original: format!("({})", self),
             alias: alias.to_string(),
         }
+    }
+}
+
+impl<T> IntoSomeIterator<T> for Alias where T: From<Alias> {
+    type Iterator = Once<T>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        once(self.into())
     }
 }

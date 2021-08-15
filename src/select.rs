@@ -1,5 +1,6 @@
 mod from_item;
 mod order_by;
+mod distinct;
 
 use std::default::Default;
 use std::fmt::{self, Display, Formatter};
@@ -7,32 +8,13 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::tools::{q, IntoSomeIterator};
+use crate::general::{Expression, Condition};
 
-pub use from_item::{FromItem, Joinable, ToFromItem};
+pub use from_item::{FromItem, Joinable};
 pub use order_by::{OrderBy, Orderable};
+pub use distinct::Distinct;
 
-pub type Expression = String; // for the time being
-pub type Condition = String; // for the time being
-
-#[derive(Debug)]
-pub enum Distinct {
-    All,
-    Distinct,
-    DistinctOn(Vec<Expression>),
-}
-
-impl Display for Distinct {
-    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Distinct::All => write!(f, "ALL"),
-            Distinct::Distinct => write!(f, "DISTINCT"),
-            Distinct::DistinctOn(expressions) => {
-                write!(f, "DISTINCT ON ({})", expressions.iter().join(", "))
-            }
-        }
-    }
-}
-
+#[must_use = "Making a query without using it pointless"]
 pub fn select(expressions: impl IntoSomeIterator<Expression>) -> Select {
     Select {
         expressions: expressions.into_some_iter().collect(),
@@ -201,6 +183,18 @@ mod tests {
     fn slice_of_columns() {
         let sql = select(&["id", "name"]).from("Person").to_string();
         assert_eq!(sql, "SELECT id, name FROM Person")
+    }
+
+    #[test]
+    fn array_of_columns() {
+        let sql = select(["id", "name"]).from("Person").to_string();
+        assert_eq!(sql, "SELECT id, name FROM Person")
+    }
+
+    #[test]
+    fn no_columns() {
+        let sql = select(()).from("Person").to_string();
+        assert_eq!(sql, "SELECT FROM Person");
     }
 
     #[test]

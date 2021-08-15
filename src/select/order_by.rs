@@ -1,7 +1,7 @@
+use std::iter::{once, Once};
 use std::fmt::{self, Display, Formatter};
-use std::iter::{once, Chain, Once};
 
-use crate::select::Expression;
+use crate::general::Expression;
 use crate::tools::IntoSomeIterator;
 
 #[derive(Debug)]
@@ -88,30 +88,6 @@ impl Display for Direction {
     }
 }
 
-/* Conversions */
-
-pub trait ToOrderBy {
-    fn to_order_by(self) -> OrderBy;
-}
-
-impl ToOrderBy for String {
-    fn to_order_by(self) -> OrderBy {
-        OrderBy::new(self)
-    }
-}
-
-impl ToOrderBy for &str {
-    fn to_order_by(self) -> OrderBy {
-        OrderBy::new(self.to_owned())
-    }
-}
-
-impl ToOrderBy for OrderBy {
-    fn to_order_by(self) -> OrderBy {
-        self
-    }
-}
-
 /* Convenience */
 
 pub trait Orderable {
@@ -123,59 +99,43 @@ pub trait Orderable {
 
 impl<T> Orderable for T
 where
-    T: ToOrderBy,
+    T: Into<OrderBy>,
 {
     fn desc(self) -> OrderBy {
-        self.to_order_by().desc()
+        self.into().desc()
     }
 
     fn asc(self) -> OrderBy {
-        self.to_order_by().asc()
+        self.into().asc()
     }
 
     fn nulls_first(self) -> OrderBy {
-        self.to_order_by().nulls_first()
+        self.into().nulls_first()
     }
 
     fn nulls_last(self) -> OrderBy {
-        self.to_order_by().nulls_last()
+        self.into().nulls_last()
     }
 }
 
-/* Iterator-based flexibility */
+/* Conversions */
 
-impl<T> IntoSomeIterator<OrderBy> for T
-where
-    T: ToOrderBy,
-{
-    type Iterator = Once<OrderBy>;
+impl From<String> for OrderBy {
+    fn from(other: String) -> OrderBy {
+        OrderBy::new(other)
+    }
+}
+
+impl From<&str> for OrderBy {
+    fn from(other: &str) -> OrderBy {
+        OrderBy::new(other.to_owned())
+    }
+}
+
+impl<T> IntoSomeIterator<T> for OrderBy where T: From<OrderBy> {
+    type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.to_order_by())
+        once(self.into())
     }
 }
-
-impl<A, B> IntoSomeIterator<OrderBy> for (A, B)
-where
-    A: ToOrderBy,
-    B: ToOrderBy,
-{
-    type Iterator = Chain<Once<OrderBy>, Once<OrderBy>>;
-
-    fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.to_order_by()).chain(once(self.1.to_order_by()))
-    }
-}
-impl<A, B, C> IntoSomeIterator<OrderBy> for (A, B, C)
-where
-    A: ToOrderBy,
-    B: ToOrderBy,
-    C: ToOrderBy,
-{
-    type Iterator = Chain<Chain<Once<OrderBy>, Once<OrderBy>>, Once<OrderBy>>;
-
-    fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.to_order_by()).chain(once(self.1.to_order_by())).chain(once(self.2.to_order_by()))
-    }
-}
-
