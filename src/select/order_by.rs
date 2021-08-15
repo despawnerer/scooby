@@ -1,18 +1,18 @@
 use std::iter::{once, Once};
 use std::fmt::{self, Display, Formatter};
 
-use crate::general::Expression;
+use crate::general::SortExpression;
 use crate::tools::IntoSomeIterator;
 
 #[derive(Debug)]
 pub struct OrderBy {
-    expression: Expression,
+    expression: SortExpression,
     direction: Option<Direction>,
     nulls: Option<Nulls>,
 }
 
 impl OrderBy {
-    fn new(expression: Expression) -> Self {
+    fn new(expression: SortExpression) -> Self {
         OrderBy {
             expression,
             direction: None,
@@ -120,15 +120,9 @@ where
 
 /* Conversions */
 
-impl From<String> for OrderBy {
-    fn from(other: String) -> OrderBy {
-        OrderBy::new(other)
-    }
-}
-
-impl From<&str> for OrderBy {
-    fn from(other: &str) -> OrderBy {
-        OrderBy::new(other.to_owned())
+impl<T> From<T> for OrderBy where T: Into<SortExpression> {
+    fn from(other: T) -> Self {
+        OrderBy::new(other.into())
     }
 }
 
