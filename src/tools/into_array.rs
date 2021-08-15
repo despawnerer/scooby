@@ -3,15 +3,25 @@ pub trait IntoArray<T, const N: usize> {
     fn into_array(self) -> [T; N];
 }
 
-impl<T> IntoArray<T, 0> for () {
-    fn into_array(self) -> [T; 0] {
-        []
+// Strings
+
+impl IntoArray<String, 1> for String {
+    fn into_array(self) -> [String; 1] {
+        [self]
     }
 }
 
 impl IntoArray<String, 1> for &str {
     fn into_array(self) -> [String; 1] {
         [self.to_owned()]
+    }
+}
+
+// Generic tuples
+
+impl<T> IntoArray<T, 0> for () {
+    fn into_array(self) -> [T; 0] {
+        []
     }
 }
 

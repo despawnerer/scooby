@@ -79,7 +79,7 @@ mod tests {
     }
 
     #[test]
-    fn values_one() {
+    fn single_column() {
         let sql = insert_into("Dummy", "col1").values(["a"]).to_string();
         assert_eq!(sql, "INSERT INTO Dummy (col1) VALUES (a)");
     }
