@@ -268,7 +268,10 @@ impl IntoSomeIterator<FromItem> for Select {
     }
 }
 
-impl<T> IntoSomeIterator<T> for FromItem where T: From<FromItem> {
+impl<T> IntoSomeIterator<T> for FromItem
+where
+    T: From<FromItem>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {

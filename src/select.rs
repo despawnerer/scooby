@@ -1,18 +1,18 @@
+mod distinct;
 mod from_item;
 mod order_by;
-mod distinct;
 
 use std::default::Default;
 use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
+use crate::general::{Condition, Expression};
 use crate::tools::{q, IntoSomeIterator};
-use crate::general::{Expression, Condition};
 
+pub use distinct::Distinct;
 pub use from_item::{FromItem, Joinable};
 pub use order_by::{OrderBy, Orderable};
-pub use distinct::Distinct;
 
 #[must_use = "Making a query without using it pointless"]
 pub fn select(expressions: impl IntoSomeIterator<Expression>) -> Select {

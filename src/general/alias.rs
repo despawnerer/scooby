@@ -1,5 +1,5 @@
-use std::iter::{Once, once};
 use std::fmt::{self, Display, Formatter};
+use std::iter::{once, Once};
 
 use crate::select::Select;
 use crate::tools::IntoSomeIterator;
@@ -46,7 +46,10 @@ impl Aliasable for Select {
     }
 }
 
-impl<T> IntoSomeIterator<T> for Alias where T: From<Alias> {
+impl<T> IntoSomeIterator<T> for Alias
+where
+    T: From<Alias>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {

@@ -5,7 +5,10 @@ use itertools::Itertools;
 use crate::general::{Column, Expression};
 use crate::tools::IntoArray;
 
-pub fn insert_into<const N: usize>(table_name: &str, columns: impl IntoArray<Column, N>) -> InsertInto<N> {
+pub fn insert_into<const N: usize>(
+    table_name: &str,
+    columns: impl IntoArray<Column, N>,
+) -> InsertInto<N> {
     InsertInto {
         table_name: table_name.to_string(),
         columns: columns.into_array(),
@@ -26,7 +29,10 @@ impl<const N: usize> InsertInto<N> {
         self
     }
 
-    pub fn values<T: IntoArray<Expression, N>>(mut self, values: impl IntoIterator<Item = T>) -> Self {
+    pub fn values<T: IntoArray<Expression, N>>(
+        mut self,
+        values: impl IntoIterator<Item = T>,
+    ) -> Self {
         let iter = values.into_iter().map(IntoArray::into_array);
 
         match self.values {
@@ -40,7 +46,13 @@ impl<const N: usize> InsertInto<N> {
 
 impl<const N: usize> Display for InsertInto<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "INSERT INTO {} ({}) {}", self.table_name, self.columns.iter().join(", "), self.values)?;
+        write!(
+            f,
+            "INSERT INTO {} ({}) {}",
+            self.table_name,
+            self.columns.iter().join(", "),
+            self.values
+        )?;
 
         Ok(())
     }
@@ -57,7 +69,13 @@ impl<const N: usize> Display for Values<N> {
         match self {
             Values::Default => write!(f, "DEFAULT VALUES"),
             Values::List(rows) if rows.len() == 0 => write!(f, "VALUES ()"),
-            Values::List(rows) => write!(f, "VALUES {}", rows.iter().map(|cols| format!("({})", cols.iter().join(", "))).join(", ")),
+            Values::List(rows) => write!(
+                f,
+                "VALUES {}",
+                rows.iter()
+                    .map(|cols| format!("({})", cols.iter().join(", ")))
+                    .join(", ")
+            ),
         }
     }
 }
@@ -86,13 +104,17 @@ mod tests {
 
     #[test]
     fn values() {
-        let sql = insert_into("Dummy", ("col1", "col2")).values([("a", "b")]).to_string();
+        let sql = insert_into("Dummy", ("col1", "col2"))
+            .values([("a", "b")])
+            .to_string();
         assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (a, b)");
     }
 
     #[test]
     fn values_many() {
-        let sql = insert_into("Dummy", ("col1", "col2")).values([("a", "b"), ("c", "d")]).to_string();
+        let sql = insert_into("Dummy", ("col1", "col2"))
+            .values([("a", "b"), ("c", "d")])
+            .to_string();
         assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (a, b), (c, d)");
     }
 }

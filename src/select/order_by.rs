@@ -1,5 +1,5 @@
-use std::iter::{once, Once};
 use std::fmt::{self, Display, Formatter};
+use std::iter::{once, Once};
 
 use crate::general::SortExpression;
 use crate::tools::IntoSomeIterator;
@@ -120,13 +120,19 @@ where
 
 /* Conversions */
 
-impl<T> From<T> for OrderBy where T: Into<SortExpression> {
+impl<T> From<T> for OrderBy
+where
+    T: Into<SortExpression>,
+{
     fn from(other: T) -> Self {
         OrderBy::new(other.into())
     }
 }
 
-impl<T> IntoSomeIterator<T> for OrderBy where T: From<OrderBy> {
+impl<T> IntoSomeIterator<T> for OrderBy
+where
+    T: From<OrderBy>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {

@@ -9,7 +9,10 @@ pub trait IntoSomeIterator<T> {
 
 // Strings
 
-impl<T> IntoSomeIterator<T> for String where T: From<String> {
+impl<T> IntoSomeIterator<T> for String
+where
+    T: From<String>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -17,7 +20,10 @@ impl<T> IntoSomeIterator<T> for String where T: From<String> {
     }
 }
 
-impl<'a, T> IntoSomeIterator<T> for &'a str where T: From<&'a str> {
+impl<'a, T> IntoSomeIterator<T> for &'a str
+where
+    T: From<&'a str>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -39,7 +45,10 @@ where
 
 // Generic arrays
 
-impl<T, U, const N: usize> IntoSomeIterator<T> for [U; N] where U: Into<T> {
+impl<T, U, const N: usize> IntoSomeIterator<T> for [U; N]
+where
+    U: Into<T>,
+{
     type Iterator = Map<std::array::IntoIter<U, N>, fn(U) -> T>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -58,7 +67,10 @@ impl<T> IntoSomeIterator<T> for () {
     }
 }
 
-impl<T, U> IntoSomeIterator<T> for (U,) where U: Into<T> {
+impl<T, U> IntoSomeIterator<T> for (U,)
+where
+    U: Into<T>,
+{
     type Iterator = Once<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -66,7 +78,11 @@ impl<T, U> IntoSomeIterator<T> for (U,) where U: Into<T> {
     }
 }
 
-impl<T, U1, U2> IntoSomeIterator<T> for (U1, U2) where U1: Into<T>, U2: Into<T> {
+impl<T, U1, U2> IntoSomeIterator<T> for (U1, U2)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+{
     type Iterator = Chain<Once<T>, Once<T>>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -74,7 +90,12 @@ impl<T, U1, U2> IntoSomeIterator<T> for (U1, U2) where U1: Into<T>, U2: Into<T> 
     }
 }
 
-impl<T, U1, U2, U3> IntoSomeIterator<T> for (U1, U2, U3) where U1: Into<T>, U2: Into<T>, U3: Into<T> {
+impl<T, U1, U2, U3> IntoSomeIterator<T> for (U1, U2, U3)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+{
     type Iterator = Chain<Chain<Once<T>, Once<T>>, Once<T>>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -85,16 +106,19 @@ impl<T, U1, U2, U3> IntoSomeIterator<T> for (U1, U2, U3) where U1: Into<T>, U2: 
 }
 
 impl<T, U1, U2, U3, U4, U5, U6, U7> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6, U7)
-    where
-        U1: Into<T>,
-        U2: Into<T>,
-        U3: Into<T>,
-        U4: Into<T>,
-        U5: Into<T>,
-        U6: Into<T>,
-        U7: Into<T>,
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
 {
-    type Iterator = Chain<Chain<Chain<Chain<Chain<Chain<Once<T>, Once<T>>, Once<T>>, Once<T>>, Once<T>>, Once<T>>, Once<T>>;
+    type Iterator = Chain<
+        Chain<Chain<Chain<Chain<Chain<Once<T>, Once<T>>, Once<T>>, Once<T>>, Once<T>>, Once<T>>,
+        Once<T>,
+    >;
 
     fn into_some_iter(self) -> Self::Iterator {
         once(self.0.into())
