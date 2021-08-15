@@ -6,3 +6,4 @@ mod tools;
 pub use general::{Alias, Aliasable};
 pub use insert::insert_into;
 pub use select::{select, Joinable, Orderable, Select};
+pub use tools::Parameters;

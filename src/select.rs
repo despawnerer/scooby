@@ -8,7 +8,7 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::general::{Condition, Expression};
-use crate::tools::{q, IntoSomeIterator};
+use crate::tools::IntoSomeIterator;
 
 pub use distinct::Distinct;
 pub use from_item::{FromItem, Joinable};
@@ -67,11 +67,6 @@ impl Select {
 
     pub fn where_(mut self, conditions: impl IntoSomeIterator<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
-        self
-    }
-
-    pub fn where_in(mut self, column: &str, count: usize) -> Self {
-        self.where_.push(format!("{} IN ({})", column, q(count)));
         self
     }
 
