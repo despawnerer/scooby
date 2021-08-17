@@ -43,13 +43,129 @@ where
     }
 }
 
-impl<T, U1, U2, U3> IntoArray<T, 3> for (U1, U2, U3)
+impl<T, U1, U2, U3, U4> IntoArray<T, 4> for (U1, U2, U3, U4)
 where
     U1: Into<T>,
     U2: Into<T>,
     U3: Into<T>,
+    U4: Into<T>,
 {
-    fn into_array(self) -> [T; 3] {
-        [self.0.into(), self.1.into(), self.2.into()]
+    fn into_array(self) -> [T; 4] {
+        [self.0.into(), self.1.into(), self.2.into(), self.3.into()]
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5> IntoArray<T, 5> for (U1, U2, U3, U4, U5)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+{
+    fn into_array(self) -> [T; 5] {
+        [
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+        ]
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6> IntoArray<T, 6> for (U1, U2, U3, U4, U5, U6)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+{
+    fn into_array(self) -> [T; 6] {
+        [
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+        ]
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7> IntoArray<T, 7> for (U1, U2, U3, U4, U5, U6, U7)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+{
+    fn into_array(self) -> [T; 7] {
+        [
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+        ]
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoArray<T, 8> for (U1, U2, U3, U4, U5, U6, U7, U8)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+{
+    fn into_array(self) -> [T; 8] {
+        [
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+        ]
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoArray<T, 9> for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+    U9: Into<T>,
+{
+    fn into_array(self) -> [T; 9] {
+        [
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+            self.8.into(),
+        ]
     }
 }

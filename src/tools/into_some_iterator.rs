@@ -1,4 +1,4 @@
-use std::iter::{empty, once, Chain, Copied, Empty, Map, Once};
+use std::iter::{empty, once, Copied, Empty, Map, Once};
 use std::slice;
 
 pub trait IntoSomeIterator<T> {
@@ -71,10 +71,10 @@ impl<T, U> IntoSomeIterator<T> for (U,)
 where
     U: Into<T>,
 {
-    type Iterator = Once<T>;
+    type Iterator = std::array::IntoIter<T, 1>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.into())
+        IntoIterator::into_iter([self.0.into()])
     }
 }
 
@@ -83,10 +83,10 @@ where
     U1: Into<T>,
     U2: Into<T>,
 {
-    type Iterator = Chain<Once<T>, Once<T>>;
+    type Iterator = std::array::IntoIter<T, 2>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.into()).chain(once(self.1.into()))
+        IntoIterator::into_iter([self.0.into(), self.1.into()])
     }
 }
 
@@ -96,12 +96,68 @@ where
     U2: Into<T>,
     U3: Into<T>,
 {
-    type Iterator = Chain<Chain<Once<T>, Once<T>>, Once<T>>;
+    type Iterator = std::array::IntoIter<T, 3>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.into())
-            .chain(once(self.1.into()))
-            .chain(once(self.2.into()))
+        IntoIterator::into_iter([self.0.into(), self.1.into(), self.2.into()])
+    }
+}
+
+impl<T, U1, U2, U3, U4> IntoSomeIterator<T> for (U1, U2, U3, U4)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 4>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([self.0.into(), self.1.into(), self.2.into(), self.3.into()])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5> IntoSomeIterator<T> for (U1, U2, U3, U4, U5)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 5>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+        ])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 6>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+        ])
     }
 }
 
@@ -115,18 +171,74 @@ where
     U6: Into<T>,
     U7: Into<T>,
 {
-    type Iterator = Chain<
-        Chain<Chain<Chain<Chain<Chain<Once<T>, Once<T>>, Once<T>>, Once<T>>, Once<T>>, Once<T>>,
-        Once<T>,
-    >;
+    type Iterator = std::array::IntoIter<T, 7>;
 
     fn into_some_iter(self) -> Self::Iterator {
-        once(self.0.into())
-            .chain(once(self.1.into()))
-            .chain(once(self.2.into()))
-            .chain(once(self.3.into()))
-            .chain(once(self.4.into()))
-            .chain(once(self.5.into()))
-            .chain(once(self.6.into()))
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+        ])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6, U7, U8)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 8>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+        ])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoSomeIterator<T>
+    for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+    U9: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 9>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+            self.8.into(),
+        ])
     }
 }
