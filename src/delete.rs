@@ -3,7 +3,7 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::general::{Condition, OutputExpression};
-use crate::tools::IntoSomeIterator;
+use crate::tools::IntoIteratorOfSameType;
 
 pub fn delete_from(table_name: &str) -> DeleteFrom {
     DeleteFrom {
@@ -20,12 +20,12 @@ pub struct DeleteFrom {
 }
 
 impl DeleteFrom {
-    pub fn where_(mut self, conditions: impl IntoSomeIterator<Condition>) -> Self {
+    pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
         self
     }
 
-    pub fn returning(mut self, expressions: impl IntoSomeIterator<OutputExpression>) -> Self {
+    pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
     }

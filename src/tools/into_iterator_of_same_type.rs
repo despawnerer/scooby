@@ -1,7 +1,7 @@
 use std::iter::{empty, once, Copied, Empty, Map, Once};
 use std::slice;
 
-pub trait IntoSomeIterator<T> {
+pub trait IntoIteratorOfSameType<T> {
     type Iterator: Iterator<Item = T>;
 
     fn into_some_iter(self) -> Self::Iterator;
@@ -9,7 +9,7 @@ pub trait IntoSomeIterator<T> {
 
 // Strings
 
-impl<T> IntoSomeIterator<T> for String
+impl<T> IntoIteratorOfSameType<T> for String
 where
     T: From<String>,
 {
@@ -20,7 +20,7 @@ where
     }
 }
 
-impl<'a, T> IntoSomeIterator<T> for &'a str
+impl<'a, T> IntoIteratorOfSameType<T> for &'a str
 where
     T: From<&'a str>,
 {
@@ -31,7 +31,7 @@ where
     }
 }
 
-impl<'a, T> IntoSomeIterator<String> for &'a T
+impl<'a, T> IntoIteratorOfSameType<String> for &'a T
 where
     T: AsRef<[&'a str]>,
 {
@@ -45,7 +45,7 @@ where
 
 // Generic arrays
 
-impl<T, U, const N: usize> IntoSomeIterator<T> for [U; N]
+impl<T, U, const N: usize> IntoIteratorOfSameType<T> for [U; N]
 where
     U: Into<T>,
 {
@@ -59,7 +59,7 @@ where
 // Generic tuples
 // TODO: A macro
 
-impl<T> IntoSomeIterator<T> for () {
+impl<T> IntoIteratorOfSameType<T> for () {
     type Iterator = Empty<T>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -67,7 +67,7 @@ impl<T> IntoSomeIterator<T> for () {
     }
 }
 
-impl<T, U> IntoSomeIterator<T> for (U,)
+impl<T, U> IntoIteratorOfSameType<T> for (U,)
 where
     U: Into<T>,
 {
@@ -78,7 +78,7 @@ where
     }
 }
 
-impl<T, U1, U2> IntoSomeIterator<T> for (U1, U2)
+impl<T, U1, U2> IntoIteratorOfSameType<T> for (U1, U2)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -90,7 +90,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3> IntoSomeIterator<T> for (U1, U2, U3)
+impl<T, U1, U2, U3> IntoIteratorOfSameType<T> for (U1, U2, U3)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -103,7 +103,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4> IntoSomeIterator<T> for (U1, U2, U3, U4)
+impl<T, U1, U2, U3, U4> IntoIteratorOfSameType<T> for (U1, U2, U3, U4)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -117,7 +117,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5> IntoSomeIterator<T> for (U1, U2, U3, U4, U5)
+impl<T, U1, U2, U3, U4, U5> IntoIteratorOfSameType<T> for (U1, U2, U3, U4, U5)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -138,7 +138,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6)
+impl<T, U1, U2, U3, U4, U5, U6> IntoIteratorOfSameType<T> for (U1, U2, U3, U4, U5, U6)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -161,7 +161,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6, U7)
+impl<T, U1, U2, U3, U4, U5, U6, U7> IntoIteratorOfSameType<T> for (U1, U2, U3, U4, U5, U6, U7)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -186,7 +186,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoSomeIterator<T> for (U1, U2, U3, U4, U5, U6, U7, U8)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoIteratorOfSameType<T> for (U1, U2, U3, U4, U5, U6, U7, U8)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -213,7 +213,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoSomeIterator<T>
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoIteratorOfSameType<T>
     for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
 where
     U1: Into<T>,

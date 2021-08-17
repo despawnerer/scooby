@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 use std::iter::{once, Once};
 
 use crate::select::Select;
-use crate::tools::IntoSomeIterator;
+use crate::tools::IntoIteratorOfSameType;
 
 pub struct Alias {
     original: String,
@@ -46,7 +46,7 @@ impl Aliasable for Select {
     }
 }
 
-impl<T> IntoSomeIterator<T> for Alias
+impl<T> IntoIteratorOfSameType<T> for Alias
 where
     T: From<Alias>,
 {

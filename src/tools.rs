@@ -1,7 +1,7 @@
-mod into_array;
-mod into_some_iterator;
+mod into_array_of_same_type;
+mod into_iterator_of_same_type;
 mod parameters;
 
-pub use into_array::IntoArray;
-pub use into_some_iterator::IntoSomeIterator;
+pub use into_array_of_same_type::IntoArrayOfSameType;
+pub use into_iterator_of_same_type::IntoIteratorOfSameType;
 pub use parameters::Parameters;

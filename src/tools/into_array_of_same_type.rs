@@ -1,16 +1,16 @@
-pub trait IntoArray<T, const N: usize> {
+pub trait IntoArrayOfSameType<T, const N: usize> {
     fn into_array(self) -> [T; N];
 }
 
 // Strings
 
-impl IntoArray<String, 1> for String {
+impl IntoArrayOfSameType<String, 1> for String {
     fn into_array(self) -> [String; 1] {
         [self]
     }
 }
 
-impl IntoArray<String, 1> for &str {
+impl IntoArrayOfSameType<String, 1> for &str {
     fn into_array(self) -> [String; 1] {
         [self.to_owned()]
     }
@@ -18,13 +18,13 @@ impl IntoArray<String, 1> for &str {
 
 // Generic tuples
 
-impl<T> IntoArray<T, 0> for () {
+impl<T> IntoArrayOfSameType<T, 0> for () {
     fn into_array(self) -> [T; 0] {
         []
     }
 }
 
-impl<T, U> IntoArray<T, 1> for (U,)
+impl<T, U> IntoArrayOfSameType<T, 1> for (U,)
 where
     U: Into<T>,
 {
@@ -33,7 +33,7 @@ where
     }
 }
 
-impl<T, U1, U2> IntoArray<T, 2> for (U1, U2)
+impl<T, U1, U2> IntoArrayOfSameType<T, 2> for (U1, U2)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -43,7 +43,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4> IntoArray<T, 4> for (U1, U2, U3, U4)
+impl<T, U1, U2, U3, U4> IntoArrayOfSameType<T, 4> for (U1, U2, U3, U4)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -55,7 +55,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5> IntoArray<T, 5> for (U1, U2, U3, U4, U5)
+impl<T, U1, U2, U3, U4, U5> IntoArrayOfSameType<T, 5> for (U1, U2, U3, U4, U5)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -74,7 +74,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6> IntoArray<T, 6> for (U1, U2, U3, U4, U5, U6)
+impl<T, U1, U2, U3, U4, U5, U6> IntoArrayOfSameType<T, 6> for (U1, U2, U3, U4, U5, U6)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -95,7 +95,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7> IntoArray<T, 7> for (U1, U2, U3, U4, U5, U6, U7)
+impl<T, U1, U2, U3, U4, U5, U6, U7> IntoArrayOfSameType<T, 7> for (U1, U2, U3, U4, U5, U6, U7)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -118,7 +118,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoArray<T, 8> for (U1, U2, U3, U4, U5, U6, U7, U8)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoArrayOfSameType<T, 8> for (U1, U2, U3, U4, U5, U6, U7, U8)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -143,7 +143,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoArray<T, 9> for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoArrayOfSameType<T, 9> for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
 where
     U1: Into<T>,
     U2: Into<T>,

@@ -8,14 +8,14 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::general::{Condition, Expression};
-use crate::tools::IntoSomeIterator;
+use crate::tools::IntoIteratorOfSameType;
 
 pub use distinct::Distinct;
 pub use from_item::{FromItem, Joinable};
 pub use order_by::{OrderBy, Orderable};
 
 #[must_use = "Making a query without using it pointless"]
-pub fn select(expressions: impl IntoSomeIterator<Expression>) -> Select {
+pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     Select {
         expressions: expressions.into_some_iter().collect(),
         ..Default::default()
@@ -40,7 +40,7 @@ impl Select {
         Default::default()
     }
 
-    pub fn and_select(mut self, expressions: impl IntoSomeIterator<Expression>) -> Self {
+    pub fn and_select(mut self, expressions: impl IntoIteratorOfSameType<Expression>) -> Self {
         self.expressions.extend(expressions.into_some_iter());
         self
     }
@@ -55,32 +55,32 @@ impl Select {
         self
     }
 
-    pub fn distinct_on(mut self, expressions: impl IntoSomeIterator<Expression>) -> Self {
+    pub fn distinct_on(mut self, expressions: impl IntoIteratorOfSameType<Expression>) -> Self {
         self.distinct = Some(Distinct::DistinctOn(expressions.into_some_iter().collect()));
         self
     }
 
-    pub fn from(mut self, from: impl IntoSomeIterator<FromItem>) -> Self {
+    pub fn from(mut self, from: impl IntoIteratorOfSameType<FromItem>) -> Self {
         self.from.extend(from.into_some_iter());
         self
     }
 
-    pub fn where_(mut self, conditions: impl IntoSomeIterator<Condition>) -> Self {
+    pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
         self
     }
 
-    pub fn group_by(mut self, groupings: impl IntoSomeIterator<Expression>) -> Self {
+    pub fn group_by(mut self, groupings: impl IntoIteratorOfSameType<Expression>) -> Self {
         self.group_by.extend(groupings.into_some_iter());
         self
     }
 
-    pub fn having(mut self, conditions: impl IntoSomeIterator<Condition>) -> Self {
+    pub fn having(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.having.extend(conditions.into_some_iter());
         self
     }
 
-    pub fn order_by(mut self, order_bys: impl IntoSomeIterator<OrderBy>) -> Self {
+    pub fn order_by(mut self, order_bys: impl IntoIteratorOfSameType<OrderBy>) -> Self {
         self.order_by.extend(order_bys.into_some_iter());
         self
     }

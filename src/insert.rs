@@ -3,11 +3,11 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::general::{Column, Expression, OutputExpression};
-use crate::tools::{IntoArray, IntoSomeIterator};
+use crate::tools::{IntoArrayOfSameType, IntoIteratorOfSameType};
 
 pub fn insert_into<const N: usize>(
     table_name: &str,
-    columns: impl IntoArray<Column, N>,
+    columns: impl IntoArrayOfSameType<Column, N>,
 ) -> InsertInto<N> {
     InsertInto {
         table_name: table_name.to_string(),
@@ -31,11 +31,11 @@ impl<const N: usize> InsertInto<N> {
         self
     }
 
-    pub fn values<T: IntoArray<Expression, N>>(
+    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
         mut self,
         values: impl IntoIterator<Item = T>,
     ) -> Self {
-        let iter = values.into_iter().map(IntoArray::into_array);
+        let iter = values.into_iter().map(IntoArrayOfSameType::into_array);
 
         match self.values {
             Values::Default => self.values = Values::List(iter.collect()),
@@ -45,7 +45,7 @@ impl<const N: usize> InsertInto<N> {
         self
     }
 
-    pub fn returning(mut self, expressions: impl IntoSomeIterator<OutputExpression>) -> Self {
+    pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
     }

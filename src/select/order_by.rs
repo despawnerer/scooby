@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 use std::iter::{once, Once};
 
 use crate::general::SortExpression;
-use crate::tools::IntoSomeIterator;
+use crate::tools::IntoIteratorOfSameType;
 
 #[derive(Debug)]
 pub struct OrderBy {
@@ -129,7 +129,7 @@ where
     }
 }
 
-impl<T> IntoSomeIterator<T> for OrderBy
+impl<T> IntoIteratorOfSameType<T> for OrderBy
 where
     T: From<OrderBy>,
 {

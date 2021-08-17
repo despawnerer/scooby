@@ -3,7 +3,7 @@ use std::iter::{once, Once};
 
 use itertools::Itertools;
 
-use crate::tools::IntoSomeIterator;
+use crate::tools::IntoIteratorOfSameType;
 use crate::{Alias, Select};
 
 #[derive(Debug)]
@@ -126,7 +126,7 @@ impl JoinBuilder {
         from
     }
 
-    pub fn using(self, columns: impl IntoSomeIterator<String>) -> FromItem {
+    pub fn using(self, columns: impl IntoIteratorOfSameType<String>) -> FromItem {
         let mut from = self.from;
 
         from.joins.push(Join {
@@ -260,7 +260,7 @@ impl From<Select> for FromItem {
     }
 }
 
-impl IntoSomeIterator<FromItem> for Select {
+impl IntoIteratorOfSameType<FromItem> for Select {
     type Iterator = Once<FromItem>;
 
     fn into_some_iter(self) -> Self::Iterator {
@@ -268,7 +268,7 @@ impl IntoSomeIterator<FromItem> for Select {
     }
 }
 
-impl<T> IntoSomeIterator<T> for FromItem
+impl<T> IntoIteratorOfSameType<T> for FromItem
 where
     T: From<FromItem>,
 {
