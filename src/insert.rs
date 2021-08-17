@@ -2,8 +2,8 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Expression};
-use crate::tools::IntoArray;
+use crate::general::{Column, Expression, OutputExpression};
+use crate::tools::{IntoArray, IntoSomeIterator};
 
 pub fn insert_into<const N: usize>(
     table_name: &str,
@@ -13,6 +13,7 @@ pub fn insert_into<const N: usize>(
         table_name: table_name.to_string(),
         columns: columns.into_array(),
         values: Values::List(Vec::new()),
+        returning: Vec::new(),
     }
 }
 
@@ -21,6 +22,7 @@ pub struct InsertInto<const N: usize> {
     table_name: String,
     columns: [Column; N],
     values: Values<N>,
+    returning: Vec<OutputExpression>,
 }
 
 impl<const N: usize> InsertInto<N> {
@@ -42,6 +44,11 @@ impl<const N: usize> InsertInto<N> {
 
         self
     }
+
+    pub fn returning(mut self, expressions: impl IntoSomeIterator<OutputExpression>) -> Self {
+        self.returning.extend(expressions.into_some_iter());
+        self
+    }
 }
 
 impl<const N: usize> Display for InsertInto<N> {
@@ -53,6 +60,10 @@ impl<const N: usize> Display for InsertInto<N> {
             self.columns.iter().join(", "),
             self.values
         )?;
+
+        if self.returning.len() > 0 {
+            write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
+        }
 
         Ok(())
     }
@@ -116,5 +127,26 @@ mod tests {
             .values([("a", "b"), ("c", "d")])
             .to_string();
         assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (a, b), (c, d)");
+    }
+
+    #[test]
+    fn returning() {
+        let sql = insert_into("Dummy", "col1")
+            .values(["a"])
+            .returning("id")
+            .to_string();
+        assert_eq!(sql, "INSERT INTO Dummy (col1) VALUES (a) RETURNING id");
+    }
+
+    #[test]
+    fn returning_two() {
+        let sql = insert_into("Dummy", "col1")
+            .values(["a"])
+            .returning(("id", "place"))
+            .to_string();
+        assert_eq!(
+            sql,
+            "INSERT INTO Dummy (col1) VALUES (a) RETURNING id, place"
+        );
     }
 }
