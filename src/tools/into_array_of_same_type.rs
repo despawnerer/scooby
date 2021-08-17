@@ -16,6 +16,14 @@ impl IntoArrayOfSameType<String, 1> for &str {
     }
 }
 
+// Generic arrays
+
+impl<T, const N: usize> IntoArrayOfSameType<T, N> for [T; N] {
+    fn into_array(self) -> [T; N] {
+        self
+    }
+}
+
 // Generic tuples
 
 impl<T> IntoArrayOfSameType<T, 0> for () {
