@@ -126,7 +126,8 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoArrayOfSameType<T, 8> for (U1, U2, U3, U4, U5, U6, U7, U8)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoArrayOfSameType<T, 8>
+    for (U1, U2, U3, U4, U5, U6, U7, U8)
 where
     U1: Into<T>,
     U2: Into<T>,
@@ -151,7 +152,8 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoArrayOfSameType<T, 9> for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9> IntoArrayOfSameType<T, 9>
+    for (U1, U2, U3, U4, U5, U6, U7, U8, U9)
 where
     U1: Into<T>,
     U2: Into<T>,
