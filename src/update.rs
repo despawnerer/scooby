@@ -17,7 +17,7 @@ pub struct UpdateWithoutAnyValuesSet {
 }
 
 impl UpdateWithoutAnyValuesSet {
-    pub fn set<C: Into<Column>, V: Into<Expression>>(self, column: C, value: V) -> Update {
+    pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
         let mut values = Vec::new();
         values.push((column.into(), value.into()));
 
@@ -38,7 +38,7 @@ pub struct Update {
 }
 
 impl Update {
-    pub fn set<C: Into<Column>, V: Into<Expression>>(mut self, column: C, value: V) -> Self {
+    pub fn set(mut self, column: impl Into<Column>, value: impl Into<Expression>) -> Self {
         self.values.push((column.into(), value.into()));
         self
     }
