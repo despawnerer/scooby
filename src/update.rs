@@ -2,18 +2,18 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Condition, Expression, OutputExpression};
+use crate::general::{Column, Condition, Expression, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
-pub fn update(table_name: &str) -> UpdateWithoutAnyValuesSet {
+pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
-        table_name: table_name.to_owned(),
+        table_name: table_name.into(),
     }
 }
 
 #[derive(Debug)]
 pub struct UpdateWithoutAnyValuesSet {
-    table_name: String,
+    table_name: TableName,
 }
 
 impl UpdateWithoutAnyValuesSet {
@@ -31,7 +31,7 @@ impl UpdateWithoutAnyValuesSet {
 
 #[derive(Debug, Default)]
 pub struct Update {
-    table_name: String,
+    table_name: TableName,
     values: Vec<(Column, Expression)>,
     where_: Vec<Condition>,
     returning: Vec<OutputExpression>,

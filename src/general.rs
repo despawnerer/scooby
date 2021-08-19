@@ -7,3 +7,4 @@ pub type Expression = String;
 pub type Condition = String;
 pub type Column = String;
 pub type OutputExpression = String;
+pub type TableName = String;

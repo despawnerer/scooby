@@ -2,19 +2,19 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Condition, OutputExpression};
+use crate::general::{Condition, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
-pub fn delete_from(table_name: &str) -> DeleteFrom {
+pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom {
-        table_name: table_name.to_string(),
+        table_name: table_name.into(),
         ..Default::default()
     }
 }
 
 #[derive(Default, Debug)]
 pub struct DeleteFrom {
-    table_name: String,
+    table_name: TableName,
     where_: Vec<Condition>,
     returning: Vec<OutputExpression>,
 }

@@ -2,15 +2,15 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Expression, OutputExpression};
+use crate::general::{Column, Expression, OutputExpression, TableName};
 use crate::tools::{IntoArrayOfSameType, IntoIteratorOfSameType};
 
 pub fn insert_into<const N: usize>(
-    table_name: &str,
+    table_name: impl Into<TableName>,
     columns: impl IntoArrayOfSameType<Column, N>,
 ) -> InsertInto<N> {
     InsertInto {
-        table_name: table_name.to_string(),
+        table_name: table_name.into(),
         columns: columns.into_array(),
         values: Values::List(Vec::new()),
         returning: Vec::new(),
@@ -19,7 +19,7 @@ pub fn insert_into<const N: usize>(
 
 #[derive(Debug)]
 pub struct InsertInto<const N: usize> {
-    table_name: String,
+    table_name: TableName,
     columns: [Column; N],
     values: Values<N>,
     returning: Vec<OutputExpression>,

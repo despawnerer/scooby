@@ -5,17 +5,18 @@ use itertools::Itertools;
 
 use crate::tools::IntoIteratorOfSameType;
 use crate::{Alias, Select};
+use crate::general::TableName;
 
 #[derive(Debug)]
 pub struct FromItem {
-    table: String,
+    table_name: TableName,
     joins: Vec<Join>,
 }
 
 impl FromItem {
-    fn new(table: String) -> FromItem {
+    fn new(table_name: impl Into<TableName>) -> FromItem {
         FromItem {
-            table: table,
+            table_name: table_name.into(),
             joins: Vec::new(),
         }
     }
@@ -23,7 +24,7 @@ impl FromItem {
 
 impl Display for FromItem {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", self.table)?;
+        write!(f, "{}", self.table_name)?;
 
         if self.joins.len() > 0 {
             write!(f, " {}", self.joins.iter().join(" "))? // ha, I'm joining joins, get it?
