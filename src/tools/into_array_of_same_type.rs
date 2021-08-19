@@ -51,6 +51,17 @@ where
     }
 }
 
+impl<T, U1, U2, U3> IntoArrayOfSameType<T, 3> for (U1, U2, U3)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+{
+    fn into_array(self) -> [T; 3] {
+        [self.0.into(), self.1.into(), self.2.into()]
+    }
+}
+
 impl<T, U1, U2, U3, U4> IntoArrayOfSameType<T, 4> for (U1, U2, U3, U4)
 where
     U1: Into<T>,
