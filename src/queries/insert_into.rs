@@ -112,6 +112,17 @@ mod tests {
     }
 
     #[test]
+    fn value_various_types() {
+        let sql = insert_into("Dummy", ("name", "age", "height_in_meters"))
+            .values([("\"Doug\"", 5, 1.76)])
+            .to_string();
+        assert_eq!(
+            sql,
+            "INSERT INTO Dummy (name, age, height_in_meters) VALUES (\"Doug\", 5, 1.76)"
+        );
+    }
+
+    #[test]
     fn returning() {
         let sql = insert_into("Dummy", "col1")
             .values(["a"])
