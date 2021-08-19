@@ -3,9 +3,9 @@ use std::iter::{once, Once};
 
 use itertools::Itertools;
 
+use crate::general::TableName;
 use crate::tools::IntoIteratorOfSameType;
 use crate::{Alias, Select};
-use crate::general::TableName;
 
 #[derive(Debug)]
 pub struct FromItem {
