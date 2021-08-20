@@ -1,6 +1,7 @@
 mod distinct;
 mod from_item;
 mod order_by;
+mod join;
 
 use std::default::Default;
 use std::fmt::{self, Display, Formatter};
@@ -11,7 +12,8 @@ use crate::general::{Condition, Expression};
 use crate::tools::IntoIteratorOfSameType;
 
 pub use distinct::Distinct;
-pub use from_item::{FromItem, Joinable};
+pub use from_item::FromItem;
+pub use join::Joinable;
 pub use order_by::{OrderBy, Orderable};
 
 #[must_use = "Making a query without using it pointless"]
