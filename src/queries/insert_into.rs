@@ -48,12 +48,31 @@ impl BareInsertInto {
     pub fn columns<const N: usize>(
         self,
         columns: impl IntoNonZeroArray<Column, N>,
+    ) -> InsertIntoColumnsBuilder<N> {
+        InsertIntoColumnsBuilder {
+            table_name: self.table_name,
+            columns: columns.into_non_zero_array(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct InsertIntoColumnsBuilder<const N: usize> {
+    table_name: TableName,
+    columns: [Column; N],
+}
+
+impl<const N: usize> InsertIntoColumnsBuilder<N> {
+    pub fn values<T: IntoNonZeroArray<Expression, N>>(
+        self,
+        values: impl IntoIterator<Item = T>,
     ) -> InsertInto<WithColumns<N>> {
-        let columns = columns.into_non_zero_array();
+        let mut values_with_columns = WithColumns::new(self.columns);
+        values_with_columns.add(values);
 
         InsertInto {
             table_name: self.table_name,
-            values: WithColumns::new(columns),
+            values: values_with_columns,
             returning: Vec::new(),
         }
     }
@@ -141,20 +160,12 @@ mod tests {
         assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (\"Doug\", 5, 1.76)");
     }
 
-    // FIXME: This currently compiles, but should not
+    // FIXME: This currently compiles and panics at runtime, but ideally should not even compile
     #[test]
     fn BAD_zero_length_columns() {
-        let sql = insert_into("Dummy").columns([]).to_string();
+        let sql = insert_into("Dummy").columns([]).values([[]]).to_string();
 
         assert_correct_postgresql(&sql, "INSERT INTO Dummy () VALUES ");
-    }
-
-    // FIXME: This currently compiles, but should not
-    #[test]
-    fn BAD_columns_with_no_values() {
-        let sql = insert_into("Dummy").columns("col1").to_string();
-
-        assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1) VALUES ");
     }
 
     #[test]
