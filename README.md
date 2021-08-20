@@ -1,9 +1,11 @@
 Scooby
 ======
 
+[![Latest Version](https://img.shields.io/crates/v/scooby.svg)](https://crates.io/crates/scooby)
+
 An SQL query builder with a pleasant fluent API closely imitating actual SQL. Meant to comfortably build dynamic queries with a little bit of safety checks sprinkled on top to ensure you don't forget important things like `ON` clauses. Does not do quoting, does not do validation.
 
-Supports only PostgreSQL syntax.
+Supports only PostgreSQL syntax at the moment.
 
 Requires Rust 1.54.
 
