@@ -1,6 +1,6 @@
 use itertools::Itertools;
 
-/* Helper struct to make it easy to generate PostgreSQL parameter placeholders for dynamic queries with multiple values */
+/// Generate PostgreSQL parameter placeholders for dynamic queries with multiple values
 pub struct Parameters {
     current: usize,
 }
