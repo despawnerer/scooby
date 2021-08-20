@@ -6,7 +6,7 @@ use std::{
 
 use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
-use super::Column;
+use super::{Alias, Column};
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Expression(String);
@@ -37,6 +37,12 @@ impl From<u32> for Expression {
 
 impl From<Column> for Expression {
     fn from(value: Column) -> Self {
+        Expression(value.to_string())
+    }
+}
+
+impl From<Alias> for Expression {
+    fn from(value: Alias) -> Self {
         Expression(value.to_string())
     }
 }
