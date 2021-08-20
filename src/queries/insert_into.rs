@@ -168,7 +168,8 @@ mod tests {
 
     // FIXME: This currently compiles and panics at runtime, but ideally should not even compile
     #[test]
-    fn BAD_zero_length_columns() {
+    #[should_panic]
+    fn zero_length_columns() {
         let sql = insert_into("Dummy").columns([]).values([[]]).to_string();
 
         assert_correct_postgresql(&sql, "INSERT INTO Dummy () VALUES ");
