@@ -408,4 +408,22 @@ mod tests {
 
         assert_correct_postgresql(&sql, "SELECT whatever FROM SomeTable LIMIT 10 OFFSET 5");
     }
+
+    #[test]
+    fn complex_query_example() {
+        let sql = select(("country.name".as_("name"), "COUNT(*)".as_("count")))
+            .from(
+                "Country"
+                    .as_("country")
+                    .inner_join("City".as_("city"))
+                    .on("city.country_id = country.id"),
+            )
+            .where_("city.population > 1000000")
+            .group_by("country.id")
+            .order_by("count".desc())
+            .limit(10)
+            .to_string();
+
+        assert_correct_postgresql(&sql, "SELECT country.name AS name, COUNT(*) AS count FROM Country AS country INNER JOIN City AS city ON city.country_id = country.id WHERE city.population > 1000000 GROUP BY country.id ORDER BY count DESC LIMIT 10");
+    }
 }
