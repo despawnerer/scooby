@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::tools::IntoArrayOfSameType;
+use crate::tools::IntoNonZeroArray;
 
 #[derive(Debug, Eq, PartialEq)]
 pub struct Column(String);
@@ -23,14 +23,14 @@ impl Display for Column {
     }
 }
 
-impl IntoArrayOfSameType<Column, 1> for &str {
-    fn into_array(self) -> [Column; 1] {
+impl IntoNonZeroArray<Column, 1> for &str {
+    fn into_non_zero_array(self) -> [Column; 1] {
         [Column(self.to_owned())]
     }
 }
 
-impl IntoArrayOfSameType<Column, 1> for String {
-    fn into_array(self) -> [Column; 1] {
+impl IntoNonZeroArray<Column, 1> for String {
+    fn into_non_zero_array(self) -> [Column; 1] {
         [Column(self)]
     }
 }

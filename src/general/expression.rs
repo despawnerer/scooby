@@ -4,7 +4,7 @@ use std::{
     slice,
 };
 
-use crate::tools::{IntoArrayOfSameType, IntoIteratorOfSameType};
+use crate::tools::{IntoNonZeroArray, IntoIteratorOfSameType};
 
 use super::Column;
 
@@ -47,14 +47,14 @@ impl Display for Expression {
     }
 }
 
-impl IntoArrayOfSameType<Expression, 1> for &str {
-    fn into_array(self) -> [Expression; 1] {
+impl IntoNonZeroArray<Expression, 1> for &str {
+    fn into_non_zero_array(self) -> [Expression; 1] {
         [Expression(self.to_owned())]
     }
 }
 
-impl IntoArrayOfSameType<Expression, 1> for String {
-    fn into_array(self) -> [Expression; 1] {
+impl IntoNonZeroArray<Expression, 1> for String {
+    fn into_non_zero_array(self) -> [Expression; 1] {
         [Expression(self)]
     }
 }

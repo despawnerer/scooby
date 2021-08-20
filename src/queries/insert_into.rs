@@ -5,7 +5,7 @@ use std::fmt::{self, Display, Formatter};
 use itertools::Itertools;
 
 use crate::general::{Column, Expression, OutputExpression, TableName};
-use crate::tools::{IntoArrayOfSameType, IntoIteratorOfSameType};
+use crate::tools::{IntoNonZeroArray, IntoIteratorOfSameType};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
@@ -29,13 +29,13 @@ impl BareInsertInto {
         }
     }
 
-    pub fn values<T: IntoArrayOfSameType<Expression, N>, const N: usize>(
+    pub fn values<T: IntoNonZeroArray<Expression, N>, const N: usize>(
         self,
         values: impl IntoIterator<Item = T>,
     ) -> InsertInto<WithoutColumns<N>> {
         let values = values
             .into_iter()
-            .map(IntoArrayOfSameType::into_array)
+            .map(IntoNonZeroArray::into_non_zero_array)
             .collect();
 
         InsertInto {
@@ -47,9 +47,9 @@ impl BareInsertInto {
 
     pub fn columns<const N: usize>(
         self,
-        columns: impl IntoArrayOfSameType<Column, N>,
+        columns: impl IntoNonZeroArray<Column, N>,
     ) -> InsertInto<WithColumns<N>> {
-        let columns = columns.into_array();
+        let columns = columns.into_non_zero_array();
 
         InsertInto {
             table_name: self.table_name,
@@ -74,7 +74,7 @@ impl<V: Values> InsertInto<V> {
 }
 
 impl<const N: usize> InsertInto<WithColumns<N>> {
-    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
+    pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,
     ) -> Self {
@@ -84,7 +84,7 @@ impl<const N: usize> InsertInto<WithColumns<N>> {
 }
 
 impl<const N: usize> InsertInto<WithoutColumns<N>> {
-    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
+    pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,
     ) -> Self {
@@ -144,7 +144,7 @@ mod tests {
     // FIXME: This currently compiles, but should not
     #[test]
     fn BAD_zero_length_columns() {
-        let sql = insert_into("Dummy").columns(()).to_string();
+        let sql = insert_into("Dummy").columns([]).to_string();
 
         assert_correct_postgresql(&sql, "INSERT INTO Dummy () VALUES ");
     }
