@@ -5,7 +5,7 @@ An SQL query builder with a pleasant fluent API closely imitating actual SQL. Me
 
 Supports only PostgreSQL syntax.
 
-Requires Rust 1.56.
+Requires Rust 1.54.
 
 
 Supported statements, clauses and features
