@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Expression};
+use crate::postgres::general::{Column, Expression};
 use crate::tools::IntoNonZeroArray;
 
 pub trait Values: Display {}
@@ -32,10 +32,7 @@ impl<const N: usize> WithoutColumns<N> {
         WithoutColumns { values }
     }
 
-    pub fn add<T: IntoNonZeroArray<Expression, N>>(
-        &mut self,
-        iter: impl IntoIterator<Item = T>,
-    ) {
+    pub fn add<T: IntoNonZeroArray<Expression, N>>(&mut self, iter: impl IntoIterator<Item = T>) {
         self.values
             .extend(iter.into_iter().map(IntoNonZeroArray::into_non_zero_array))
     }
@@ -72,10 +69,7 @@ impl<const N: usize> WithColumns<N> {
         }
     }
 
-    pub fn add<T: IntoNonZeroArray<Expression, N>>(
-        &mut self,
-        iter: impl IntoIterator<Item = T>,
-    ) {
+    pub fn add<T: IntoNonZeroArray<Expression, N>>(&mut self, iter: impl IntoIterator<Item = T>) {
         self.values
             .extend(iter.into_iter().map(IntoNonZeroArray::into_non_zero_array))
     }

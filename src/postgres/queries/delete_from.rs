@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Condition, OutputExpression, TableName};
+use crate::postgres::general::{Condition, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
@@ -49,8 +49,8 @@ impl Display for DeleteFrom {
 
 #[cfg(test)]
 mod tests {
-    use crate::delete_from;
-    use crate::tools::tests::assert_correct_postgresql;
+    use crate::postgres::delete_from;
+    use crate::postgres::tools::tests::assert_correct_postgresql;
 
     #[test]
     fn everything() {

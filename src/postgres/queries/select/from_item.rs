@@ -3,9 +3,9 @@ use std::iter::{once, Once};
 
 use itertools::Itertools;
 
-use crate::general::TableName;
+use crate::postgres::general::TableName;
+use crate::postgres::{Alias, Select};
 use crate::tools::IntoIteratorOfSameType;
-use crate::{Alias, Select};
 
 use super::join::Join;
 

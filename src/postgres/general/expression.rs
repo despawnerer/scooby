@@ -4,7 +4,7 @@ use std::{
     slice,
 };
 
-use crate::tools::{IntoNonZeroArray, IntoIteratorOfSameType};
+use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 use super::Column;
 

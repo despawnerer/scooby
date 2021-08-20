@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Condition, Expression, OutputExpression, TableName};
+use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
@@ -80,8 +80,8 @@ impl Display for Update {
 
 #[cfg(test)]
 mod tests {
-    use crate::tools::tests::assert_correct_postgresql;
-    use crate::update;
+    use crate::postgres::tools::tests::assert_correct_postgresql;
+    use crate::postgres::update;
 
     #[test]
     fn update_single_value() {

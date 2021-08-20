@@ -1,7 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 use std::iter::{once, Once};
 
-use crate::general::SortExpression;
+use crate::postgres::general::SortExpression;
 use crate::tools::IntoIteratorOfSameType;
 
 #[derive(Debug)]

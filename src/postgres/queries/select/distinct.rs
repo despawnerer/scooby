@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::Expression;
+use crate::postgres::general::Expression;
 
 #[derive(Debug)]
 pub enum Distinct {

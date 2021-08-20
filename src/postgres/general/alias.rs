@@ -1,7 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 use std::iter::{once, Once};
 
-use crate::queries::Select;
+use crate::postgres::Select;
 use crate::tools::IntoIteratorOfSameType;
 
 pub struct Alias {

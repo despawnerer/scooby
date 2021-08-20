@@ -135,8 +135,7 @@ where
     }
 }
 
-impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoNonZeroArray<T, 8>
-    for (U1, U2, U3, U4, U5, U6, U7, U8)
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8> IntoNonZeroArray<T, 8> for (U1, U2, U3, U4, U5, U6, U7, U8)
 where
     U1: Into<T>,
     U2: Into<T>,

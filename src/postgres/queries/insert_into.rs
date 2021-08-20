@@ -4,8 +4,8 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Column, Expression, OutputExpression, TableName};
-use crate::tools::{IntoNonZeroArray, IntoIteratorOfSameType};
+use crate::postgres::general::{Column, Expression, OutputExpression, TableName};
+use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
@@ -132,8 +132,8 @@ impl<V: Values> Display for InsertInto<V> {
 
 #[cfg(test)]
 mod tests {
-    use crate::insert_into;
-    use crate::tools::tests::assert_correct_postgresql;
+    use crate::postgres::insert_into;
+    use crate::postgres::tools::tests::assert_correct_postgresql;
 
     #[test]
     fn default_values() {

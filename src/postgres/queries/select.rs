@@ -1,14 +1,14 @@
 mod distinct;
 mod from_item;
-mod order_by;
 mod join;
+mod order_by;
 
 use std::default::Default;
 use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::{Condition, Expression};
+use crate::postgres::general::{Condition, Expression};
 use crate::tools::IntoIteratorOfSameType;
 
 pub use distinct::Distinct;
@@ -144,8 +144,8 @@ impl Display for Select {
 
 #[cfg(test)]
 mod tests {
-    use crate::tools::tests::assert_correct_postgresql;
-    use crate::{select, Aliasable, Joinable, Orderable};
+    use crate::postgres::tools::tests::assert_correct_postgresql;
+    use crate::postgres::{select, Aliasable, Joinable, Orderable};
 
     #[test]
     fn bare() {
