@@ -142,54 +142,55 @@ impl Display for Select {
 
 #[cfg(test)]
 mod tests {
+    use crate::tools::tests::assert_correct_postgresql;
     use crate::{select, Aliasable, Joinable, Orderable};
 
     #[test]
     fn bare() {
         let sql = select(()).to_string();
-        assert_eq!(sql, "SELECT");
+        assert_correct_postgresql(&sql, "SELECT");
     }
 
     #[test]
     fn without_from() {
         let sql = select("1 + 1").to_string();
-        assert_eq!(sql, "SELECT 1 + 1");
+        assert_correct_postgresql(&sql, "SELECT 1 + 1");
     }
 
     #[test]
     fn all() {
         let sql = select("*").all().from("City").to_string();
-        assert_eq!(sql, "SELECT ALL * FROM City");
+        assert_correct_postgresql(&sql, "SELECT ALL * FROM City");
     }
 
     #[test]
     fn distinct() {
         let sql = select("*").distinct().from("City").to_string();
-        assert_eq!(sql, "SELECT DISTINCT * FROM City");
+        assert_correct_postgresql(&sql, "SELECT DISTINCT * FROM City");
     }
 
     #[test]
     fn tuple_of_columns() {
         let sql = select(("id", "name")).from("Person").to_string();
-        assert_eq!(sql, "SELECT id, name FROM Person")
+        assert_correct_postgresql(&sql, "SELECT id, name FROM Person")
     }
 
     #[test]
     fn slice_of_columns() {
         let sql = select(&["id", "name"]).from("Person").to_string();
-        assert_eq!(sql, "SELECT id, name FROM Person")
+        assert_correct_postgresql(&sql, "SELECT id, name FROM Person")
     }
 
     #[test]
     fn array_of_columns() {
         let sql = select(["id", "name"]).from("Person").to_string();
-        assert_eq!(sql, "SELECT id, name FROM Person")
+        assert_correct_postgresql(&sql, "SELECT id, name FROM Person")
     }
 
     #[test]
     fn no_columns() {
         let sql = select(()).from("Person").to_string();
-        assert_eq!(sql, "SELECT FROM Person");
+        assert_correct_postgresql(&sql, "SELECT FROM Person");
     }
 
     #[test]
@@ -199,28 +200,29 @@ mod tests {
             .and_select("age")
             .and_select(("occupation_id", "city_id"))
             .to_string();
-        assert_eq!(
-            sql,
-            "SELECT id, name, age, occupation_id, city_id FROM Person"
+
+        assert_correct_postgresql(
+            &sql,
+            "SELECT id, name, age, occupation_id, city_id FROM Person",
         )
     }
 
     #[test]
     fn from_single_table() {
         let sql = select("name").from("Person").to_string();
-        assert_eq!(sql, "SELECT name FROM Person");
+        assert_correct_postgresql(&sql, "SELECT name FROM Person");
     }
 
     #[test]
     fn from_twice() {
         let sql = select("*").from("OneTable").from("OtherTable").to_string();
-        assert_eq!(sql, "SELECT * FROM OneTable, OtherTable");
+        assert_correct_postgresql(&sql, "SELECT * FROM OneTable, OtherTable");
     }
 
     #[test]
     fn from_alias() {
         let sql = select("*").from("Person".as_("p")).to_string();
-        assert_eq!(sql, "SELECT * FROM Person AS p");
+        assert_correct_postgresql(&sql, "SELECT * FROM Person AS p");
     }
 
     #[test]
@@ -228,21 +230,22 @@ mod tests {
         let sql = select(&["p.name", "c.name", "d.name"])
             .from(("Person p", "City c", "District d"))
             .to_string();
-        assert_eq!(
-            sql,
-            "SELECT p.name, c.name, d.name FROM Person p, City c, District d"
+
+        assert_correct_postgresql(
+            &sql,
+            "SELECT p.name, c.name, d.name FROM Person p, City c, District d",
         );
     }
 
     #[test]
     fn from_join() {
-        let sql = select("column")
+        let sql = select("col1")
             .from("Person p".join("City c").on("c.id = p.city_id"))
             .to_string();
 
-        assert_eq!(
-            sql,
-            "SELECT column FROM Person p JOIN City c ON c.id = p.city_id"
+        assert_correct_postgresql(
+            &sql,
+            "SELECT col1 FROM Person p JOIN City c ON c.id = p.city_id",
         );
     }
 
@@ -257,15 +260,15 @@ mod tests {
             )
             .to_string();
 
-        assert_eq!(
-            sql,
-            "SELECT * FROM Person AS p JOIN City AS c ON c.id = p.city_id"
+        assert_correct_postgresql(
+            &sql,
+            "SELECT * FROM Person AS p JOIN City AS c ON c.id = p.city_id",
         );
     }
 
     #[test]
     fn from_multiple_joins() {
-        let sql = select("column")
+        let sql = select("col1")
             .from(
                 "Person p"
                     .inner_join("City c")
@@ -275,15 +278,23 @@ mod tests {
             )
             .to_string();
 
-        assert_eq!(sql, "SELECT column FROM Person p INNER JOIN City c ON c.id = p.city_id LEFT JOIN Belonging b ON p.id = b.person_id");
+        assert_correct_postgresql(&sql, "SELECT col1 FROM Person p INNER JOIN City c ON c.id = p.city_id LEFT JOIN Belonging b ON p.id = b.person_id");
+    }
+
+    #[test]
+    fn cross_join() {
+        let sql = select("*").from("One".cross_join("Two")).to_string();
+
+        assert_correct_postgresql(&sql, "SELECT * FROM One CROSS JOIN Two");
     }
 
     #[test]
     fn cross_join_chain() {
         let sql = select("*")
-            .from("Table".cross_join("Other").cross_join("Third"))
+            .from("One".cross_join("Two").cross_join("Three"))
             .to_string();
-        assert_eq!(sql, "SELECT * FROM Table CROSS JOIN Other CROSS JOIN Third");
+
+        assert_correct_postgresql(&sql, "SELECT * FROM One CROSS JOIN Two CROSS JOIN Three");
     }
 
     #[test]
@@ -294,7 +305,8 @@ mod tests {
                     .on("(t2.a = t1.a AND t3.b = t1.b AND t4.c = t1.c)"),
             )
             .to_string();
-        assert_eq!(sql, "SELECT * FROM t1 LEFT JOIN (t2 CROSS JOIN t3 CROSS JOIN t4) ON (t2.a = t1.a AND t3.b = t1.b AND t4.c = t1.c)");
+
+        assert_correct_postgresql(&sql, "SELECT * FROM t1 LEFT JOIN (t2 CROSS JOIN t3 CROSS JOIN t4) ON (t2.a = t1.a AND t3.b = t1.b AND t4.c = t1.c)");
     }
 
     #[test]
@@ -306,17 +318,20 @@ mod tests {
             ))
             .to_string();
 
-        assert_eq!(
-            sql,
-            "SELECT * FROM Person p INNER JOIN City c ON c.id = p.city_id, OtherTable o"
+        assert_correct_postgresql(
+            &sql,
+            "SELECT * FROM Person p INNER JOIN City c ON c.id = p.city_id, OtherTable o",
         )
     }
 
     #[test]
     fn from_subselect() {
-        let subselect = select("id").from("City");
-        let sql = select("*").from(subselect).to_string();
-        assert_eq!(sql, "SELECT * FROM (SELECT id FROM City)");
+        let sql = select("*")
+            .from(select("id").from("City").as_("x"))
+            .to_string();
+
+        // FIXME: would be nice to guarantee that subselects MUST be aliased somehow?
+        assert_correct_postgresql(&sql, "SELECT * FROM (SELECT id FROM City) AS x");
     }
 
     #[test]
@@ -330,7 +345,8 @@ mod tests {
                     .on("c.planet_id = p.id"),
             )
             .to_string();
-        assert_eq!(sql, "SELECT * FROM (SELECT id, planet_id FROM City) AS c INNER JOIN Planet AS p ON c.planet_id = p.id");
+
+        assert_correct_postgresql(&sql, "SELECT * FROM (SELECT id, planet_id FROM City) AS c INNER JOIN Planet AS p ON c.planet_id = p.id");
     }
 
     #[test]
@@ -339,16 +355,17 @@ mod tests {
             .from("City")
             .group_by("country_id")
             .to_string();
-        assert_eq!(
-            sql,
-            "SELECT country_id, COUNT(*) FROM City GROUP BY country_id"
+
+        assert_correct_postgresql(
+            &sql,
+            "SELECT country_id, COUNT(*) FROM City GROUP BY country_id",
         );
     }
 
     #[test]
     fn order_by() {
         let sql = select("*").from("City").order_by("id").to_string();
-        assert_eq!(sql, "SELECT * FROM City ORDER BY id");
+        assert_correct_postgresql(&sql, "SELECT * FROM City ORDER BY id");
     }
 
     #[test]
@@ -357,25 +374,26 @@ mod tests {
             .from("City")
             .order_by(("country_id", "id"))
             .to_string();
-        assert_eq!(sql, "SELECT * FROM City ORDER BY country_id, id");
+
+        assert_correct_postgresql(&sql, "SELECT * FROM City ORDER BY country_id, id");
     }
 
     #[test]
     fn order_by_desc() {
         let sql = select("*").from("City").order_by("id".desc()).to_string();
-        assert_eq!(sql, "SELECT * FROM City ORDER BY id DESC");
+        assert_correct_postgresql(&sql, "SELECT * FROM City ORDER BY id DESC");
     }
 
     #[test]
     fn limit() {
         let sql = select("whatever").from("SomeTable").limit(5).to_string();
-        assert_eq!(sql, "SELECT whatever FROM SomeTable LIMIT 5");
+        assert_correct_postgresql(&sql, "SELECT whatever FROM SomeTable LIMIT 5");
     }
 
     #[test]
     fn offset() {
         let sql = select("whatever").from("SomeTable").offset(5).to_string();
-        assert_eq!(sql, "SELECT whatever FROM SomeTable OFFSET 5"); // happens to be valid in postgresql
+        assert_correct_postgresql(&sql, "SELECT whatever FROM SomeTable OFFSET 5");
     }
 
     #[test]
@@ -385,6 +403,7 @@ mod tests {
             .limit(10)
             .offset(5)
             .to_string();
-        assert_eq!(sql, "SELECT whatever FROM SomeTable LIMIT 10 OFFSET 5");
+
+        assert_correct_postgresql(&sql, "SELECT whatever FROM SomeTable LIMIT 10 OFFSET 5");
     }
 }
