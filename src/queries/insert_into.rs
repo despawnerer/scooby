@@ -15,6 +15,8 @@ pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     }
 }
 
+/* Initial INSERT INTO statement without a valid values clause specified */
+
 #[derive(Debug)]
 pub struct BareInsertInto {
     table_name: TableName,
@@ -56,6 +58,8 @@ impl BareInsertInto {
     }
 }
 
+/* Intermediate struct to ensure one cannot build an INSERT INTO statement with columns, but without values */
+
 #[derive(Debug)]
 pub struct InsertIntoColumnsBuilder<const N: usize> {
     table_name: TableName,
@@ -77,6 +81,8 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
         }
     }
 }
+
+/* A valid INSERT INTO statement that can already be stringified */
 
 #[derive(Debug)]
 pub struct InsertInto<V: Values> {
