@@ -9,6 +9,7 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
+#[must_use = "Making a query without using it pointless"]
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
         table_name: table_name.into(),

@@ -5,6 +5,7 @@ use itertools::Itertools;
 use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
+#[must_use = "Making a query without using it pointless"]
 pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
         table_name: table_name.into(),
