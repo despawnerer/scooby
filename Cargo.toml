@@ -10,7 +10,7 @@ edition = "2018"
 itertools = "0.10.1"
 
 [dev-dependencies]
-postgres = "0.19"
+postgres = "0.19.1"
 
 [features]
 validate-postgres-syntax = []
