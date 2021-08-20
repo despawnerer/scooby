@@ -50,23 +50,24 @@ impl Display for DeleteFrom {
 #[cfg(test)]
 mod tests {
     use crate::delete_from;
+    use crate::tools::tests::assert_correct_postgresql;
 
     #[test]
     fn everything() {
         let sql = delete_from("Dummy").to_string();
-        assert_eq!(sql, "DELETE FROM Dummy");
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy");
     }
 
     #[test]
     fn where_one() {
         let sql = delete_from("Dummy").where_("x > 0").to_string();
-        assert_eq!(sql, "DELETE FROM Dummy WHERE x > 0");
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy WHERE x > 0");
     }
 
     #[test]
     fn where_many() {
         let sql = delete_from("Dummy").where_(("x > 0", "y > 30")).to_string();
-        assert_eq!(sql, "DELETE FROM Dummy WHERE x > 0 AND y > 30");
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy WHERE x > 0 AND y > 30");
     }
 
     #[test]
@@ -75,18 +76,19 @@ mod tests {
             .where_("x > 0")
             .where_("y < 10")
             .to_string();
-        assert_eq!(sql, "DELETE FROM Dummy WHERE x > 0 AND y < 10");
+
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy WHERE x > 0 AND y < 10");
     }
 
     #[test]
     fn returning() {
         let sql = delete_from("Dummy").returning("id").to_string();
-        assert_eq!(sql, "DELETE FROM Dummy RETURNING id");
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy RETURNING id");
     }
 
     #[test]
     fn returning_two() {
         let sql = delete_from("Dummy").returning(("id", "place")).to_string();
-        assert_eq!(sql, "DELETE FROM Dummy RETURNING id, place");
+        assert_correct_postgresql(&sql, "DELETE FROM Dummy RETURNING id, place");
     }
 }
