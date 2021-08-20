@@ -80,29 +80,30 @@ impl Display for Update {
 
 #[cfg(test)]
 mod tests {
+    use crate::tools::tests::assert_correct_postgresql;
     use crate::update;
 
     #[test]
     fn update_single_value() {
         let sql = update("Dummy").set("x", "y").to_string();
-        assert_eq!(sql, "UPDATE Dummy SET x = y");
+        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y");
     }
 
     #[test]
     fn update_multi_call() {
         let sql = update("Dummy").set("x", "y").set("a", "b").to_string();
-        assert_eq!(sql, "UPDATE Dummy SET x = y, a = b");
+        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y, a = b");
     }
 
     #[test]
     fn update_where() {
         let sql = update("Dummy").set("x", "y").where_("id = 5").to_string();
-        assert_eq!(sql, "UPDATE Dummy SET x = y WHERE id = 5");
+        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y WHERE id = 5");
     }
 
     #[test]
     fn update_returning() {
         let sql = update("Dummy").set("x", "y").returning("x").to_string();
-        assert_eq!(sql, "UPDATE Dummy SET x = y RETURNING x");
+        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y RETURNING x");
     }
 }
