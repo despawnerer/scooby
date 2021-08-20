@@ -7,63 +7,95 @@ use itertools::Itertools;
 use crate::general::{Column, Expression, OutputExpression, TableName};
 use crate::tools::{IntoArrayOfSameType, IntoIteratorOfSameType};
 
-pub use values::Values;
+pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
-pub fn insert_into<const N: usize>(
-    table_name: impl Into<TableName>,
-    columns: impl IntoArrayOfSameType<Column, N>,
-) -> InsertInto<N> {
-    InsertInto {
+pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
+    BareInsertInto {
         table_name: table_name.into(),
-        columns: columns.into_array(),
-        values: Values::Default,
-        returning: Vec::new(),
     }
 }
 
 #[derive(Debug)]
-pub struct InsertInto<const N: usize> {
+pub struct BareInsertInto {
     table_name: TableName,
-    columns: [Column; N],
-    values: Values<N>,
+}
+
+impl BareInsertInto {
+    pub fn default_values(self) -> InsertInto<DefaultValues> {
+        InsertInto {
+            table_name: self.table_name,
+            values: DefaultValues,
+            returning: Vec::new(),
+        }
+    }
+
+    pub fn values<T: IntoArrayOfSameType<Expression, N>, const N: usize>(
+        self,
+        values: impl IntoIterator<Item = T>,
+    ) -> InsertInto<WithoutColumns<N>> {
+        let values = values
+            .into_iter()
+            .map(IntoArrayOfSameType::into_array)
+            .collect();
+
+        InsertInto {
+            table_name: self.table_name,
+            values: WithoutColumns::new(values),
+            returning: Vec::new(),
+        }
+    }
+
+    pub fn columns<const N: usize>(
+        self,
+        columns: impl IntoArrayOfSameType<Column, N>,
+    ) -> InsertInto<WithColumns<N>> {
+        let columns = columns.into_array();
+
+        InsertInto {
+            table_name: self.table_name,
+            values: WithColumns::new(columns),
+            returning: Vec::new(),
+        }
+    }
+}
+
+#[derive(Debug)]
+pub struct InsertInto<V: Values> {
+    table_name: TableName,
+    values: V,
     returning: Vec<OutputExpression>,
 }
 
-impl<const N: usize> InsertInto<N> {
-    pub fn default_values(mut self) -> Self {
-        self.values = Values::Default;
-        self
-    }
-
-    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
-        mut self,
-        values: impl IntoIterator<Item = T>,
-    ) -> Self {
-        let iter = values.into_iter().map(IntoArrayOfSameType::into_array);
-
-        match self.values {
-            Values::Default => self.values = Values::List(iter.collect()),
-            Values::List(ref mut vec) => vec.extend(iter),
-        }
-
-        self
-    }
-
+impl<V: Values> InsertInto<V> {
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
     }
 }
 
-impl<const N: usize> Display for InsertInto<N> {
+impl<const N: usize> InsertInto<WithColumns<N>> {
+    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
+        mut self,
+        new_values: impl IntoIterator<Item = T>,
+    ) -> Self {
+        self.values.add(new_values);
+        self
+    }
+}
+
+impl<const N: usize> InsertInto<WithoutColumns<N>> {
+    pub fn values<T: IntoArrayOfSameType<Expression, N>>(
+        mut self,
+        new_values: impl IntoIterator<Item = T>,
+    ) -> Self {
+        self.values.add(new_values);
+        self
+    }
+}
+
+impl<V: Values> Display for InsertInto<V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        write!(f, "INSERT INTO {}", self.table_name,)?;
-
-        if self.columns.len() > 0 {
-            write!(f, " ({})", self.columns.iter().join(", "))?;
-        }
-
-        write!(f, " {}", self.values)?;
+        write!(f, "INSERT INTO {} {}", self.table_name, self.values)?;
 
         if self.returning.len() > 0 {
             write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
@@ -79,33 +111,66 @@ mod tests {
     use crate::tools::tests::assert_correct_postgresql;
 
     #[test]
-    fn no_values() {
-        let sql = insert_into("Dummy", ()).to_string();
+    fn default_values() {
+        let sql = insert_into("Dummy").default_values().to_string();
         assert_correct_postgresql(&sql, "INSERT INTO Dummy DEFAULT VALUES");
     }
 
     #[test]
-    fn default_values_with_no_columns() {
-        let sql = insert_into("Dummy", ()).default_values().to_string();
-        assert_correct_postgresql(&sql, "INSERT INTO Dummy DEFAULT VALUES");
+    fn no_columns() {
+        let sql = insert_into("Dummy").values(["a"]).to_string();
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (a)");
     }
 
-    // FIXME: This currently compiles but really shouldn't
-    // #[test]
-    // fn default_values_with_columns() {
-    //     let sql = insert_into("Dummy", ("col1", "col2")).default_values().to_string();
-    //     assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1, col2) DEFAULT VALUES");
-    // }
+    #[test]
+    fn no_columns_multiple_values() {
+        let sql = insert_into("Dummy")
+            .values([("a", "b"), ("c", "d")])
+            .values([("e", "f")])
+            .to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (a, b), (c, d), (e, f)");
+    }
+
+    #[test]
+    fn no_columns_values_of_different_types() {
+        let sql = insert_into("Dummy")
+            .values([("\"Doug\"", 5, 1.76)])
+            .to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (\"Doug\", 5, 1.76)");
+    }
+
+    // FIXME: This currently compiles, but should not
+    #[test]
+    fn BAD_zero_length_columns() {
+        let sql = insert_into("Dummy").columns(()).to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy () VALUES ");
+    }
+
+    // FIXME: This currently compiles, but should not
+    #[test]
+    fn BAD_columns_with_no_values() {
+        let sql = insert_into("Dummy").columns("col1").to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1) VALUES ");
+    }
 
     #[test]
     fn single_column() {
-        let sql = insert_into("Dummy", "col1").values(["a"]).to_string();
+        let sql = insert_into("Dummy")
+            .columns("col1")
+            .values(["a"])
+            .to_string();
+
         assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1) VALUES (a)");
     }
 
     #[test]
-    fn values() {
-        let sql = insert_into("Dummy", ("col1", "col2"))
+    fn multiple_columns() {
+        let sql = insert_into("Dummy")
+            .columns(("col1", "col2"))
             .values([("a", "b")])
             .to_string();
 
@@ -113,17 +178,23 @@ mod tests {
     }
 
     #[test]
-    fn values_many() {
-        let sql = insert_into("Dummy", ("col1", "col2"))
+    fn many_values() {
+        let sql = insert_into("Dummy")
+            .columns(("col1", "col2"))
             .values([("a", "b"), ("c", "d")])
+            .values([("e", "f")])
             .to_string();
 
-        assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1, col2) VALUES (a, b), (c, d)");
+        assert_correct_postgresql(
+            &sql,
+            "INSERT INTO Dummy (col1, col2) VALUES (a, b), (c, d), (e, f)",
+        );
     }
 
     #[test]
     fn value_various_types() {
-        let sql = insert_into("Dummy", ("name", "age", "height_in_meters"))
+        let sql = insert_into("Dummy")
+            .columns(("name", "age", "height_in_meters"))
             .values([("\"Doug\"", 5, 1.76)])
             .to_string();
 
@@ -135,7 +206,8 @@ mod tests {
 
     #[test]
     fn returning() {
-        let sql = insert_into("Dummy", "col1")
+        let sql = insert_into("Dummy")
+            .columns("col1")
             .values(["a"])
             .returning("id")
             .to_string();
@@ -145,7 +217,8 @@ mod tests {
 
     #[test]
     fn returning_two() {
-        let sql = insert_into("Dummy", "col1")
+        let sql = insert_into("Dummy")
+            .columns("col1")
             .values(["a"])
             .returning(("id", "place"))
             .to_string();

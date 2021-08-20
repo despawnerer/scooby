@@ -2,26 +2,97 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::general::Expression;
+use crate::general::{Column, Expression};
+use crate::tools::IntoArrayOfSameType;
+
+pub trait Values: Display {}
+
+/* Default values, i.e. INSERT INTO x DEFAULT VALUES */
 
 #[derive(Debug)]
-pub enum Values<const N: usize> {
-    Default,
-    List(Vec<[Expression; N]>),
+pub struct DefaultValues;
+
+impl Values for DefaultValues {}
+
+impl Display for DefaultValues {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(f, "DEFAULT VALUES")
+    }
 }
 
-impl<const N: usize> Display for Values<N> {
+/* Without columns, i.e. INSERT INTO x VALUES (1, 2) */
+
+#[derive(Debug)]
+pub struct WithoutColumns<const N: usize> {
+    values: Vec<[Expression; N]>,
+}
+
+impl<const N: usize> WithoutColumns<N> {
+    pub fn new(values: Vec<[Expression; N]>) -> Self {
+        WithoutColumns { values }
+    }
+
+    pub fn add<T: IntoArrayOfSameType<Expression, N>>(
+        &mut self,
+        iter: impl IntoIterator<Item = T>,
+    ) {
+        self.values
+            .extend(iter.into_iter().map(IntoArrayOfSameType::into_array))
+    }
+}
+
+impl<const N: usize> Values for WithoutColumns<N> {}
+
+impl<const N: usize> Display for WithoutColumns<N> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-        match self {
-            Values::Default => write!(f, "DEFAULT VALUES"),
-            Values::List(rows) if rows.len() == 0 => write!(f, "VALUES ()"),
-            Values::List(rows) => write!(
-                f,
-                "VALUES {}",
-                rows.iter()
-                    .map(|cols| format!("({})", cols.iter().join(", ")))
-                    .join(", ")
-            ),
+        write!(
+            f,
+            "VALUES {}",
+            self.values
+                .iter()
+                .map(|cols| format!("({})", cols.iter().join(", ")))
+                .join(", ")
+        )
+    }
+}
+
+/* With specified columns, i.e. INSERT INTO x (col1, col2) VALUES (1, 2) */
+
+#[derive(Debug)]
+pub struct WithColumns<const N: usize> {
+    columns: [Column; N],
+    values: Vec<[Expression; N]>,
+}
+
+impl<const N: usize> WithColumns<N> {
+    pub fn new(columns: [Column; N]) -> Self {
+        WithColumns {
+            columns,
+            values: Vec::new(),
         }
+    }
+
+    pub fn add<T: IntoArrayOfSameType<Expression, N>>(
+        &mut self,
+        iter: impl IntoIterator<Item = T>,
+    ) {
+        self.values
+            .extend(iter.into_iter().map(IntoArrayOfSameType::into_array))
+    }
+}
+
+impl<const N: usize> Values for WithColumns<N> {}
+
+impl<const N: usize> Display for WithColumns<N> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        write!(
+            f,
+            "({}) VALUES {}",
+            self.columns.iter().join(", "),
+            self.values
+                .iter()
+                .map(|cols| format!("({})", cols.iter().join(", ")))
+                .join(", ")
+        )
     }
 }
