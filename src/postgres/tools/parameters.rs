@@ -1,21 +1,39 @@
 use itertools::Itertools;
 
-/// Generate PostgreSQL parameter placeholders for dynamic queries with multiple values
+/// Generator of PostgreSQL parameter placeholders for dynamic queries with multiple values
+///
+/// # Example
+///
+/// ```
+/// use scooby::postgres::Parameters;
+///
+/// let mut params = Parameters::new();
+/// let p1 = params.next();
+/// let p2 = params.next();
+/// let p345 = params.next_n(3);
+///
+/// assert_eq!(p1, "$1");
+/// assert_eq!(p2, "$2");
+/// assert_eq!(p345, "$3, $4, $5");
+/// ```
 pub struct Parameters {
     current: usize,
 }
 
 impl Parameters {
+    /// Make a new Parameters counter, starting with 1
     pub fn new() -> Parameters {
         Parameters { current: 1 }
     }
 
+    /// Return the current parameter placeholder in `$x` format, and increase the internal counter
     pub fn next(&mut self) -> String {
         let s = format!("${}", self.current);
         self.current += 1;
         s
     }
 
+    /// Return N next placeholders in `$x, $y, $z` format
     pub fn next_n(&mut self, n: usize) -> String {
         let last = self.current + n;
         let s = (self.current..last).map(|x| format!("${}", x)).join(", ");
