@@ -14,6 +14,7 @@ Supported statements, clauses and features
 ------------------------------------------
 
 1. `SELECT`
+    - `WITH`
     - `WHERE`
     - `GROUP BY`
     - `HAVING`
@@ -120,6 +121,53 @@ use scooby::postgres::delete_from;
 
 // DELETE FROM Dummy WHERE x > 0 AND y > 30
 delete_from("Dummy").where_(("x > 0", "y > 30")).to_string();
+```
+
+### `WITH` (CTE — Common Table Expression)
+
+```rust
+use scooby::postgres::{with, select};
+
+// WITH regional_sales AS (
+//         SELECT region, SUM(amount) AS total_sales
+//         FROM orders
+//         GROUP BY region
+//      ), top_regions AS (
+//         SELECT region
+//         FROM regional_sales
+//         WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+//      )
+// SELECT region,
+//        product,
+//        SUM(quantity) AS product_units,
+//        SUM(amount) AS product_sales
+// FROM orders
+// WHERE region IN (SELECT region FROM top_regions)
+// GROUP BY region, product;
+with("regional_sales")
+    .as_(
+        select(("region", "SUM(amount)".as_("total_sales")))
+            .from("orders")
+            .group_by("region"),
+    )
+    .and("top_regions")
+    .as_(select("region").from("regional_sales").where_(format!(
+        "total_sales > ({})",
+        select("SUM(total_sales)/10").from("regional_sales")
+    )))
+    .select((
+        "region",
+        "product",
+        "SUM(quantity)".as_("product_units"),
+        "SUM(amount)".as_("product_sales"),
+    ))
+    .from("orders")
+    .where_(format!(
+        "region IN ({})",
+        select("region").from("top_regions")
+    ))
+    .group_by(("region", "product"))
+    .to_string();
 ```
 
 ### `Parameters`
