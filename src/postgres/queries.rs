@@ -4,6 +4,8 @@ mod select;
 mod update;
 
 pub use delete_from::{delete_from, DeleteFrom};
-pub use insert_into::{insert_into, InsertInto};
+pub use insert_into::{insert_into, InsertInto, Values};
 pub use select::{select, Joinable, Orderable, Select};
 pub use update::{update, Update, UpdateWithoutAnyValuesSet};
+
+pub(crate) use select::select_with;

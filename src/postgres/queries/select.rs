@@ -8,7 +8,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::postgres::general::{Condition, Expression};
+use crate::postgres::general::{Condition, Expression, WithClause};
 use crate::tools::IntoIteratorOfSameType;
 
 pub use distinct::Distinct;
@@ -24,8 +24,20 @@ pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     }
 }
 
+pub(crate) fn select_with(
+    expressions: impl IntoIteratorOfSameType<Expression>,
+    with_clause: WithClause,
+) -> Select {
+    Select {
+        expressions: expressions.into_some_iter().collect(),
+        with: Some(with_clause),
+        ..Default::default()
+    }
+}
+
 #[derive(Default, Debug)]
 pub struct Select {
+    with: Option<WithClause>,
     expressions: Vec<Expression>,
     from: Vec<FromItem>,
     where_: Vec<Condition>,
@@ -100,6 +112,10 @@ impl Select {
 
 impl Display for Select {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if let Some(with_clause) = &self.with {
+            write!(f, "{} ", with_clause)?;
+        }
+
         write!(f, "SELECT")?;
 
         if let Some(distinct) = &self.distinct {
@@ -145,7 +161,7 @@ impl Display for Select {
 #[cfg(test)]
 mod tests {
     use crate::postgres::tools::tests::assert_correct_postgresql;
-    use crate::postgres::{select, Aliasable, Joinable, Orderable};
+    use crate::postgres::{select, with, Aliasable, Joinable, Orderable};
 
     #[test]
     fn bare() {
@@ -407,6 +423,33 @@ mod tests {
             .to_string();
 
         assert_correct_postgresql(&sql, "SELECT whatever FROM SomeTable LIMIT 10 OFFSET 5");
+    }
+
+    #[test]
+    fn with_select() {
+        let sql = with("thing")
+            .as_(select("1 + 1"))
+            .select("x")
+            .from("thing")
+            .to_string();
+
+        assert_correct_postgresql(&sql, "WITH thing AS (SELECT 1 + 1) SELECT x FROM thing");
+    }
+
+    #[test]
+    fn with_two_selects() {
+        let sql = with("one")
+            .as_(select("1 + 1"))
+            .and("two")
+            .as_(select("2 + 2"))
+            .select(("one.x", "two.x"))
+            .from(("one", "two"))
+            .to_string();
+
+        assert_correct_postgresql(
+            &sql,
+            "WITH one AS (SELECT 1 + 1), two AS (SELECT 2 + 2) SELECT one.x, two.x FROM one, two",
+        );
     }
 
     #[test]
