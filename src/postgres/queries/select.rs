@@ -35,7 +35,7 @@ pub(crate) fn select_with(
 }
 
 #[must_use = "Making a SELECT statement without using it is pointless"]
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct Select {
     with: Option<WithClause>,
     expressions: Vec<Expression>,

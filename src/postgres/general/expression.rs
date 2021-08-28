@@ -8,7 +8,7 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 use super::{Alias, Column};
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Expression(String);
 
 impl From<&str> for Expression {

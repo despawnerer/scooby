@@ -15,7 +15,7 @@ pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
     }
 }
 
-#[derive(Debug, Default)]
+#[derive(Debug, Clone, Default)]
 pub struct WithClause {
     queries: Vec<WithQuery>,
 }
@@ -54,7 +54,7 @@ impl Display for WithClause {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct WithQuery {
     name: TableName,
     columns: Vec<Column>,

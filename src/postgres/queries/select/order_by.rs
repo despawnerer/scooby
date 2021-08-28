@@ -4,7 +4,7 @@ use std::iter::{once, Once};
 use crate::postgres::general::SortExpression;
 use crate::tools::IntoIteratorOfSameType;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct OrderBy {
     expression: SortExpression,
     direction: Option<Direction>,
@@ -57,7 +57,7 @@ impl Display for OrderBy {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Nulls {
     First,
     Last,
@@ -72,7 +72,7 @@ impl Display for Nulls {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum Direction {
     Asc,
     Desc,

@@ -4,7 +4,7 @@ use itertools::Itertools;
 
 use crate::postgres::general::Expression;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Distinct {
     All,
     Distinct,

@@ -8,7 +8,7 @@ use super::FromItem;
 
 /* Complete representation of a join */
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Join {
     type_: JoinType,
     to: FromItem,
@@ -31,7 +31,7 @@ impl Display for Join {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum JoinType {
     Unspecified,
     Inner,
@@ -64,7 +64,7 @@ impl Display for JoinType {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 enum JoinCondition {
     On(String),
     Using(Vec<String>),

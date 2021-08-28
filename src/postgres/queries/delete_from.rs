@@ -13,7 +13,7 @@ pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
 }
 
 #[must_use = "Making a DELETE FROM without using it is pointless"]
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Clone)]
 pub struct DeleteFrom {
     table_name: TableName,
     where_: Vec<Condition>,

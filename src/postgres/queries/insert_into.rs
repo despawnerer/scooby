@@ -87,7 +87,7 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
 /* A valid INSERT INTO statement that can already be stringified */
 
 #[must_use = "Making an INSERT INTO query without using it is pointless"]
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct InsertInto<V: Values> {
     table_name: TableName,
     values: V,

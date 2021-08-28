@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use crate::tools::IntoNonZeroArray;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Column(String);
 
 impl From<&str> for Column {

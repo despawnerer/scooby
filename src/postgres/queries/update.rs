@@ -31,7 +31,7 @@ impl UpdateWithoutAnyValuesSet {
 }
 
 #[must_use = "Making an UPDATE query without using it is pointless"]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Clone)]
 pub struct Update {
     table_name: TableName,
     values: Vec<(Column, Expression)>,

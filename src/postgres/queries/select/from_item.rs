@@ -9,7 +9,7 @@ use crate::tools::IntoIteratorOfSameType;
 
 use super::join::Join;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct FromItem {
     table_name: TableName,
     joins: Vec<Join>,
