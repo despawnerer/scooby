@@ -3,6 +3,9 @@
 next
 ----
 
+0.2.0
+-----
+
 - Export `BareInsertInto` type from `postgres::queries` module
 - Rename `UpdateWithoutAnyValuesSet` into `BareUpdate`
 - Support for CTEs (`WITH ...` clauses) in `DELETE FROM`, `UPDATE` and `INSERT_INTO` queries

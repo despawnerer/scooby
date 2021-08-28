@@ -28,15 +28,18 @@ Supported statements, clauses and features
         - `FULL JOIN` and `FULL OUTER JOIN`
 
 2. `INSERT INTO`
+    - `WITH`
     - `DEFAULT VALUES`
     - `VALUES` with compile-time checking that lengths of all values are the same as columns
     - `RETURNING`
 
 3. `DELETE FROM`
+    - `WITH`
     - `WHERE`
     - `RETURNING`
 
 4. `UPDATE`
+    - `WITH`
     - `SET` with compile-time checking that you've actually set at least something
     - `WHERE`
     - `RETURNING`
