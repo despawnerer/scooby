@@ -4,7 +4,7 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::postgres::general::{Column, Expression, OutputExpression, TableName};
+use crate::postgres::general::{Column, Expression, OutputExpression, TableName, WithClause};
 use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
@@ -12,6 +12,14 @@ pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
         table_name: table_name.into(),
+        with: None,
+    }
+}
+
+pub(crate) fn insert_into_with(table_name: TableName, with: WithClause) -> BareInsertInto {
+    BareInsertInto {
+        table_name,
+        with: Some(with),
     }
 }
 
@@ -21,11 +29,12 @@ pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
 #[derive(Debug)]
 pub struct BareInsertInto {
     table_name: TableName,
+    with: Option<WithClause>,
 }
 
 impl BareInsertInto {
     pub fn default_values(self) -> InsertInto<DefaultValues> {
-        InsertInto::new(self.table_name, DefaultValues)
+        InsertInto::new(self.table_name, DefaultValues, self.with)
     }
 
     pub fn values<T: IntoNonZeroArray<Expression, N>, const N: usize>(
@@ -37,7 +46,7 @@ impl BareInsertInto {
             .map(IntoNonZeroArray::into_non_zero_array)
             .collect();
 
-        InsertInto::new(self.table_name, WithoutColumns::new(values))
+        InsertInto::new(self.table_name, WithoutColumns::new(values), self.with)
     }
 
     pub fn columns<const N: usize>(
@@ -46,6 +55,7 @@ impl BareInsertInto {
     ) -> InsertIntoColumnsBuilder<N> {
         InsertIntoColumnsBuilder {
             table_name: self.table_name,
+            with: self.with,
             columns: columns.into_non_zero_array(),
         }
     }
@@ -57,6 +67,7 @@ impl BareInsertInto {
 #[derive(Debug)]
 pub struct InsertIntoColumnsBuilder<const N: usize> {
     table_name: TableName,
+    with: Option<WithClause>,
     columns: [Column; N],
 }
 
@@ -70,7 +81,11 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
             .map(IntoNonZeroArray::into_non_zero_array)
             .collect();
 
-        InsertInto::new(self.table_name, WithColumns::new(self.columns, values))
+        InsertInto::new(
+            self.table_name,
+            WithColumns::new(self.columns, values),
+            self.with,
+        )
     }
 }
 
@@ -80,14 +95,16 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
 #[derive(Debug, Clone)]
 pub struct InsertInto<V: Values> {
     table_name: TableName,
+    with: Option<WithClause>,
     values: V,
     returning: Vec<OutputExpression>,
 }
 
 impl<V: Values> InsertInto<V> {
-    fn new(table_name: TableName, values: V) -> InsertInto<V> {
+    fn new(table_name: TableName, values: V, with: Option<WithClause>) -> InsertInto<V> {
         InsertInto {
             table_name,
+            with,
             values,
             returning: Vec::new(),
         }
@@ -121,6 +138,10 @@ impl<const N: usize> InsertInto<WithoutColumns<N>> {
 
 impl<V: Values> Display for InsertInto<V> {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if let Some(with_clause) = &self.with {
+            write!(f, "{} ", with_clause)?;
+        }
+
         write!(f, "INSERT INTO {} {}", self.table_name, self.values)?;
 
         if self.returning.len() > 0 {
@@ -133,8 +154,8 @@ impl<V: Values> Display for InsertInto<V> {
 
 #[cfg(test)]
 mod tests {
-    use crate::postgres::insert_into;
     use crate::postgres::tools::tests::assert_correct_postgresql;
+    use crate::postgres::{insert_into, select, with};
 
     #[test]
     fn default_values() {
@@ -245,6 +266,20 @@ mod tests {
         assert_correct_postgresql(
             &sql,
             "INSERT INTO Dummy (col1) VALUES (a) RETURNING id, place",
+        );
+    }
+
+    #[test]
+    fn cte() {
+        let sql = with("thing")
+            .as_(select("1 + 1"))
+            .insert_into("Dummy")
+            .values(["a"])
+            .to_string();
+
+        assert_correct_postgresql(
+            &sql,
+            "WITH thing AS (SELECT 1 + 1) INSERT INTO Dummy VALUES (a)",
         );
     }
 }

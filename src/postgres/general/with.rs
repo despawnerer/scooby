@@ -3,8 +3,8 @@ use std::fmt::Display;
 
 use crate::postgres::general::{Expression, TableName};
 use crate::postgres::queries::{
-    delete_from_with, select_with, update_with, DeleteFrom, InsertInto, Select, Update,
-    BareUpdate, Values,
+    delete_from_with, insert_into_with, select_with, update_with, BareInsertInto, BareUpdate,
+    DeleteFrom, InsertInto, Select, Update, Values,
 };
 use crate::tools::IntoIteratorOfSameType;
 
@@ -52,6 +52,10 @@ impl WithClause {
 
     pub fn update(self, table_name: impl Into<TableName>) -> BareUpdate {
         update_with(table_name.into(), self)
+    }
+
+    pub fn insert_into(self, table_name: impl Into<TableName>) -> BareInsertInto {
+        insert_into_with(table_name.into(), self)
     }
 }
 

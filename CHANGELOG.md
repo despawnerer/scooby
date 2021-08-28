@@ -3,8 +3,9 @@
 next
 ----
 
+- Export `BareInsertInto` type from `postgres::queries` module
 - Rename `UpdateWithoutAnyValuesSet` into `BareUpdate`
-- Support for CTEs (`WITH ...` clauses) in `DELETE FROM` and `UPDATE` queries
+- Support for CTEs (`WITH ...` clauses) in `DELETE FROM`, `UPDATE` and `INSERT_INTO` queries
 - Remove `Default` implementations from `DeleteFrom`, `InsertInto` and `Update` structs because such empty structs are not valid
 - Implement `Clone` for all query structs so you can, well, clone them
 - Mark all query structs as `must_use` rather than initial builder functions
