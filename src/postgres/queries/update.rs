@@ -19,19 +19,12 @@ pub struct UpdateWithoutAnyValuesSet {
 
 impl UpdateWithoutAnyValuesSet {
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
-        let mut values = Vec::new();
-        values.push((column.into(), value.into()));
-
-        Update {
-            table_name: self.table_name,
-            values,
-            ..Default::default()
-        }
+        Update::new(self.table_name, vec![(column.into(), value.into())])
     }
 }
 
 #[must_use = "Making an UPDATE query without using it is pointless"]
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Clone)]
 pub struct Update {
     table_name: TableName,
     values: Vec<(Column, Expression)>,
@@ -40,6 +33,15 @@ pub struct Update {
 }
 
 impl Update {
+    pub fn new(table_name: TableName, values: Vec<(Column, Expression)>) -> Update {
+        Update {
+            table_name,
+            values,
+            where_: Vec::new(),
+            returning: Vec::new(),
+        }
+    }
+
     pub fn set(mut self, column: impl Into<Column>, value: impl Into<Expression>) -> Self {
         self.values.push((column.into(), value.into()));
         self

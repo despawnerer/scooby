@@ -6,14 +6,11 @@ use crate::postgres::general::{Condition, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
-    DeleteFrom {
-        table_name: table_name.into(),
-        ..Default::default()
-    }
+    DeleteFrom::new(table_name.into())
 }
 
 #[must_use = "Making a DELETE FROM without using it is pointless"]
-#[derive(Default, Debug, Clone)]
+#[derive(Debug, Clone)]
 pub struct DeleteFrom {
     table_name: TableName,
     where_: Vec<Condition>,
@@ -21,6 +18,14 @@ pub struct DeleteFrom {
 }
 
 impl DeleteFrom {
+    pub fn new(table_name: TableName) -> DeleteFrom {
+        DeleteFrom {
+            table_name,
+            where_: Vec::new(),
+            returning: Vec::new()
+        }
+    }
+
     pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
         self

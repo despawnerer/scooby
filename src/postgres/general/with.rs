@@ -21,7 +21,7 @@ pub struct WithClause {
 }
 
 impl WithClause {
-    pub fn new() -> WithClause {
+    fn new() -> WithClause {
         WithClause {
             queries: Vec::new(),
         }

@@ -62,11 +62,8 @@ pub struct WithColumns<const N: usize> {
 }
 
 impl<const N: usize> WithColumns<N> {
-    pub fn new(columns: [Column; N]) -> Self {
-        WithColumns {
-            columns,
-            values: Vec::new(),
-        }
+    pub fn new(columns: [Column; N], values: Vec<[Expression; N]>) -> Self {
+        WithColumns { columns, values }
     }
 
     pub fn add<T: IntoNonZeroArray<Expression, N>>(&mut self, iter: impl IntoIterator<Item = T>) {

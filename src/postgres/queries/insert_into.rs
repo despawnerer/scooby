@@ -25,11 +25,7 @@ pub struct BareInsertInto {
 
 impl BareInsertInto {
     pub fn default_values(self) -> InsertInto<DefaultValues> {
-        InsertInto {
-            table_name: self.table_name,
-            values: DefaultValues,
-            returning: Vec::new(),
-        }
+        InsertInto::new(self.table_name, DefaultValues)
     }
 
     pub fn values<T: IntoNonZeroArray<Expression, N>, const N: usize>(
@@ -41,11 +37,7 @@ impl BareInsertInto {
             .map(IntoNonZeroArray::into_non_zero_array)
             .collect();
 
-        InsertInto {
-            table_name: self.table_name,
-            values: WithoutColumns::new(values),
-            returning: Vec::new(),
-        }
+        InsertInto::new(self.table_name, WithoutColumns::new(values))
     }
 
     pub fn columns<const N: usize>(
@@ -73,14 +65,12 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
         self,
         values: impl IntoIterator<Item = T>,
     ) -> InsertInto<WithColumns<N>> {
-        let mut values_with_columns = WithColumns::new(self.columns);
-        values_with_columns.add(values);
+        let values = values
+            .into_iter()
+            .map(IntoNonZeroArray::into_non_zero_array)
+            .collect();
 
-        InsertInto {
-            table_name: self.table_name,
-            values: values_with_columns,
-            returning: Vec::new(),
-        }
+        InsertInto::new(self.table_name, WithColumns::new(self.columns, values))
     }
 }
 
@@ -95,6 +85,14 @@ pub struct InsertInto<V: Values> {
 }
 
 impl<V: Values> InsertInto<V> {
+    pub fn new(table_name: TableName, values: V) -> InsertInto<V> {
+        InsertInto {
+            table_name,
+            values,
+            returning: Vec::new(),
+        }
+    }
+
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
