@@ -2,12 +2,20 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName};
+use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName, WithClause};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
         table_name: table_name.into(),
+        with: None
+    }
+}
+
+pub(crate) fn update_with(table_name: TableName, with: WithClause) -> UpdateWithoutAnyValuesSet {
+    UpdateWithoutAnyValuesSet {
+        table_name,
+        with: Some(with)
     }
 }
 
@@ -15,11 +23,12 @@ pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
 #[derive(Debug)]
 pub struct UpdateWithoutAnyValuesSet {
     table_name: TableName,
+    with: Option<WithClause>
 }
 
 impl UpdateWithoutAnyValuesSet {
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
-        Update::new(self.table_name, vec![(column.into(), value.into())])
+        Update::new(self.table_name, vec![(column.into(), value.into())], self.with)
     }
 }
 
@@ -27,16 +36,18 @@ impl UpdateWithoutAnyValuesSet {
 #[derive(Debug, Clone)]
 pub struct Update {
     table_name: TableName,
+    with: Option<WithClause>,
     values: Vec<(Column, Expression)>,
     where_: Vec<Condition>,
     returning: Vec<OutputExpression>,
 }
 
 impl Update {
-    pub fn new(table_name: TableName, values: Vec<(Column, Expression)>) -> Update {
+    pub fn new(table_name: TableName, values: Vec<(Column, Expression)>, with: Option<WithClause>) -> Update {
         Update {
             table_name,
             values,
+            with,
             where_: Vec::new(),
             returning: Vec::new(),
         }
@@ -60,6 +71,10 @@ impl Update {
 
 impl Display for Update {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if let Some(with_clause) = &self.with {
+            write!(f, "{} ", with_clause)?;
+        }
+
         write!(
             f,
             "UPDATE {} SET {}",
@@ -85,7 +100,7 @@ impl Display for Update {
 #[cfg(test)]
 mod tests {
     use crate::postgres::tools::tests::assert_correct_postgresql;
-    use crate::postgres::update;
+    use crate::postgres::{select, with, update};
 
     #[test]
     fn update_single_value() {
@@ -109,5 +124,16 @@ mod tests {
     fn update_returning() {
         let sql = update("Dummy").set("x", "y").returning("x").to_string();
         assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y RETURNING x");
+    }
+
+    #[test]
+    fn cte() {
+        let sql = with("thing")
+            .as_(select("1 + 1"))
+            .update("Dummy")
+            .set("x", "y")
+            .to_string();
+
+        assert_correct_postgresql(&sql, "WITH thing AS (SELECT 1 + 1) UPDATE Dummy SET x = y");
     }
 }

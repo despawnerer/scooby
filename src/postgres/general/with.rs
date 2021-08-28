@@ -2,7 +2,7 @@ use itertools::Itertools;
 use std::fmt::Display;
 
 use crate::postgres::general::{Expression, TableName};
-use crate::postgres::queries::{select_with, delete_from_with, DeleteFrom, InsertInto, Select, Update, Values};
+use crate::postgres::queries::{select_with, delete_from_with, update_with, DeleteFrom, InsertInto, Select, Update, Values, UpdateWithoutAnyValuesSet};
 use crate::tools::IntoIteratorOfSameType;
 
 use super::Column;
@@ -45,6 +45,10 @@ impl WithClause {
 
     pub fn delete_from(self, table_name: impl Into<TableName>) -> DeleteFrom {
         delete_from_with(table_name.into(), self)
+    }
+
+    pub fn update(self, table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
+        update_with(table_name.into(), self)
     }
 }
 

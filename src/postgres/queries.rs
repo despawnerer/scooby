@@ -10,3 +10,4 @@ pub use update::{update, Update, UpdateWithoutAnyValuesSet};
 
 pub(crate) use select::select_with;
 pub(crate) use delete_from::delete_from_with;
+pub(crate) use update::update_with;
