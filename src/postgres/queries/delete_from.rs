@@ -5,7 +5,6 @@ use itertools::Itertools;
 use crate::postgres::general::{Condition, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
-#[must_use = "Making a query without using it pointless"]
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom {
         table_name: table_name.into(),
@@ -13,6 +12,7 @@ pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     }
 }
 
+#[must_use = "Making a DELETE FROM without using it is pointless"]
 #[derive(Default, Debug)]
 pub struct DeleteFrom {
     table_name: TableName,

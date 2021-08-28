@@ -5,13 +5,13 @@ use itertools::Itertools;
 use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName};
 use crate::tools::IntoIteratorOfSameType;
 
-#[must_use = "Making a query without using it pointless"]
 pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
         table_name: table_name.into(),
     }
 }
 
+#[must_use = "Making an UPDATE query with no values set is pointless"]
 #[derive(Debug)]
 pub struct UpdateWithoutAnyValuesSet {
     table_name: TableName,
@@ -30,6 +30,7 @@ impl UpdateWithoutAnyValuesSet {
     }
 }
 
+#[must_use = "Making an UPDATE query without using it is pointless"]
 #[derive(Debug, Default)]
 pub struct Update {
     table_name: TableName,

@@ -16,7 +16,6 @@ pub use from_item::FromItem;
 pub use join::Joinable;
 pub use order_by::{OrderBy, Orderable};
 
-#[must_use = "Making a query without using it pointless"]
 pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     Select {
         expressions: expressions.into_some_iter().collect(),
@@ -35,6 +34,7 @@ pub(crate) fn select_with(
     }
 }
 
+#[must_use = "Making a SELECT statement without using it is pointless"]
 #[derive(Default, Debug)]
 pub struct Select {
     with: Option<WithClause>,

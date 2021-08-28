@@ -9,7 +9,6 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
-#[must_use = "Making a query without using it pointless"]
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
         table_name: table_name.into(),
@@ -18,6 +17,7 @@ pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
 
 /* Initial INSERT INTO statement without a valid values clause specified */
 
+#[must_use = "Making a bare INSERT INTO query is pointless"]
 #[derive(Debug)]
 pub struct BareInsertInto {
     table_name: TableName,
@@ -61,6 +61,7 @@ impl BareInsertInto {
 
 /* Intermediate struct to ensure one cannot build an INSERT INTO statement with columns, but without values */
 
+#[must_use = "Making a bare INSERT INTO query with columns is pointless"]
 #[derive(Debug)]
 pub struct InsertIntoColumnsBuilder<const N: usize> {
     table_name: TableName,
@@ -85,6 +86,7 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
 
 /* A valid INSERT INTO statement that can already be stringified */
 
+#[must_use = "Making an INSERT INTO query without using it is pointless"]
 #[derive(Debug)]
 pub struct InsertInto<V: Values> {
     table_name: TableName,
