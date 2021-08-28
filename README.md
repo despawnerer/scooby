@@ -20,6 +20,10 @@ Supported statements, clauses and features
     - `HAVING`
     - `ALL`, `DISTINCT` and `DISTINCT ON`
     - `ORDER BY`
+        - `ASC`
+        - `DESC`
+        - `NULLS FIRST`
+        - `NULLS LAST`
     - `LIMIT` and `OFFSET`
     - `FROM` with subselects and joins with a nice API:
         - `JOIN`, `INNER JOIN` and `CROSS JOIN`
