@@ -3,11 +3,12 @@
 next
 ----
 
+- Rename `UpdateWithoutAnyValuesSet` into `BareUpdate`
 - Support for CTEs (`WITH ...` clauses) in `DELETE FROM` and `UPDATE` queries
-- `DeleteFrom`, `InsertInto` and `Update` structs now do not implement `Default`, because such empty struts are not valid
-- All query structs now implement `Clone` so you can, well, clone them
-- All returned query structs are marked as `must_use`
-- Relaxed itertools dependency
+- Remove `Default` implementations from `DeleteFrom`, `InsertInto` and `Update` structs because such empty structs are not valid
+- Implement `Clone` for all query structs so you can, well, clone them
+- Mark all query structs as `must_use` rather than initial builder functions
+- Relax itertools dependency
 
 0.1.2
 -----
