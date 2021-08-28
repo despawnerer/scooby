@@ -85,7 +85,7 @@ pub struct InsertInto<V: Values> {
 }
 
 impl<V: Values> InsertInto<V> {
-    pub fn new(table_name: TableName, values: V) -> InsertInto<V> {
+    fn new(table_name: TableName, values: V) -> InsertInto<V> {
         InsertInto {
             table_name,
             values,

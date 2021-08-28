@@ -6,11 +6,11 @@ use crate::postgres::general::{Condition, OutputExpression, TableName, WithClaus
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
-    DeleteFrom::new(table_name.into())
+    DeleteFrom::new(table_name.into(), None)
 }
 
 pub(crate) fn delete_from_with(table_name: TableName, with: WithClause) -> DeleteFrom {
-    DeleteFrom::new_with(table_name, with)
+    DeleteFrom::new(table_name, Some(with))
 }
 
 #[must_use = "Making a DELETE FROM without using it is pointless"]
@@ -23,21 +23,12 @@ pub struct DeleteFrom {
 }
 
 impl DeleteFrom {
-    pub fn new(table_name: TableName) -> DeleteFrom {
+    fn new(table_name: TableName, with: Option<WithClause>) -> DeleteFrom {
         DeleteFrom {
             table_name,
-            with: None,
+            with,
             where_: Vec::new(),
             returning: Vec::new()
-        }
-    }
-
-    pub fn new_with(table_name: TableName, with: WithClause) -> DeleteFrom {
-        DeleteFrom {
-            table_name,
-            with: Some(with),
-            where_: Vec::new(),
-            returning: Vec::new(),
         }
     }
 
