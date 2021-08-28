@@ -4,7 +4,7 @@ use std::fmt::Display;
 use crate::postgres::general::{Expression, TableName};
 use crate::postgres::queries::{
     delete_from_with, select_with, update_with, DeleteFrom, InsertInto, Select, Update,
-    UpdateWithoutAnyValuesSet, Values,
+    BareUpdate, Values,
 };
 use crate::tools::IntoIteratorOfSameType;
 
@@ -50,7 +50,7 @@ impl WithClause {
         delete_from_with(table_name.into(), self)
     }
 
-    pub fn update(self, table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
+    pub fn update(self, table_name: impl Into<TableName>) -> BareUpdate {
         update_with(table_name.into(), self)
     }
 }

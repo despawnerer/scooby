@@ -7,15 +7,15 @@ use crate::postgres::general::{
 };
 use crate::tools::IntoIteratorOfSameType;
 
-pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
-    UpdateWithoutAnyValuesSet {
+pub fn update(table_name: impl Into<TableName>) -> BareUpdate {
+    BareUpdate {
         table_name: table_name.into(),
         with: None,
     }
 }
 
-pub(crate) fn update_with(table_name: TableName, with: WithClause) -> UpdateWithoutAnyValuesSet {
-    UpdateWithoutAnyValuesSet {
+pub(crate) fn update_with(table_name: TableName, with: WithClause) -> BareUpdate {
+    BareUpdate {
         table_name,
         with: Some(with),
     }
@@ -23,12 +23,12 @@ pub(crate) fn update_with(table_name: TableName, with: WithClause) -> UpdateWith
 
 #[must_use = "Making an UPDATE query with no values set is pointless"]
 #[derive(Debug)]
-pub struct UpdateWithoutAnyValuesSet {
+pub struct BareUpdate {
     table_name: TableName,
     with: Option<WithClause>,
 }
 
-impl UpdateWithoutAnyValuesSet {
+impl BareUpdate {
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
         Update::new(
             self.table_name,
