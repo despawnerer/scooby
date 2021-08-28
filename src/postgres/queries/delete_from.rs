@@ -2,17 +2,22 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::postgres::general::{Condition, OutputExpression, TableName};
+use crate::postgres::general::{Condition, OutputExpression, TableName, WithClause};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom::new(table_name.into())
 }
 
+pub(crate) fn delete_from_with(table_name: TableName, with: WithClause) -> DeleteFrom {
+    DeleteFrom::new_with(table_name, with)
+}
+
 #[must_use = "Making a DELETE FROM without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct DeleteFrom {
     table_name: TableName,
+    with: Option<WithClause>,
     where_: Vec<Condition>,
     returning: Vec<OutputExpression>,
 }
@@ -21,8 +26,18 @@ impl DeleteFrom {
     pub fn new(table_name: TableName) -> DeleteFrom {
         DeleteFrom {
             table_name,
+            with: None,
             where_: Vec::new(),
             returning: Vec::new()
+        }
+    }
+
+    pub fn new_with(table_name: TableName, with: WithClause) -> DeleteFrom {
+        DeleteFrom {
+            table_name,
+            with: Some(with),
+            where_: Vec::new(),
+            returning: Vec::new(),
         }
     }
 
@@ -39,6 +54,10 @@ impl DeleteFrom {
 
 impl Display for DeleteFrom {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        if let Some(with_clause) = &self.with {
+            write!(f, "{} ", with_clause)?;
+        }
+
         write!(f, "DELETE FROM {}", self.table_name,)?;
 
         if self.where_.len() > 0 {
@@ -55,7 +74,7 @@ impl Display for DeleteFrom {
 
 #[cfg(test)]
 mod tests {
-    use crate::postgres::delete_from;
+    use crate::postgres::{with, select, delete_from};
     use crate::postgres::tools::tests::assert_correct_postgresql;
 
     #[test]
@@ -96,5 +115,15 @@ mod tests {
     fn returning_two() {
         let sql = delete_from("Dummy").returning(("id", "place")).to_string();
         assert_correct_postgresql(&sql, "DELETE FROM Dummy RETURNING id, place");
+    }
+
+    #[test]
+    fn cte() {
+        let sql = with("thing")
+            .as_(select("1 + 1"))
+            .delete_from("Dummy")
+            .to_string();
+
+        assert_correct_postgresql(&sql, "WITH thing AS (SELECT 1 + 1) DELETE FROM Dummy");
     }
 }
