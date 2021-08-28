@@ -10,6 +10,7 @@ use crate::tools::IntoIteratorOfSameType;
 
 use super::Column;
 
+/// Start a new `WITH` clause for Common Table Expressions
 pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
     WithQueryBuilder {
         clause: WithClause::new(),
@@ -18,6 +19,7 @@ pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
     }
 }
 
+/// `WITH` clause usable with different types of queries
 #[derive(Debug, Clone, Default)]
 pub struct WithClause {
     queries: Vec<WithQuery>,

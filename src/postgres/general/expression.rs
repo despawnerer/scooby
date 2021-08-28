@@ -8,6 +8,7 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 use super::{Alias, Column};
 
+/// SQL expression and things that can be converted into one
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Expression(String);
 

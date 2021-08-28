@@ -4,6 +4,7 @@ use std::iter::{once, Once};
 use crate::postgres::Select;
 use crate::tools::IntoIteratorOfSameType;
 
+/// `x AS y` SQL alias
 #[derive(Debug, Clone)]
 pub struct Alias {
     original: String,

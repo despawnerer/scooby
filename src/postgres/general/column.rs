@@ -2,6 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use crate::tools::IntoNonZeroArray;
 
+/// SQL column name and things that can be converted into one
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct Column(String);
 

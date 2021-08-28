@@ -16,6 +16,15 @@ pub use from_item::FromItem;
 pub use join::Joinable;
 pub use order_by::{OrderBy, Orderable};
 
+/// Create a new `SELECT` query with given expressions.
+///
+/// ```
+/// use scooby::postgres::select;
+///
+/// let sql = select("1 + 1").to_string();
+///
+/// assert_eq!(sql, "SELECT 1 + 1")
+/// ```
 pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     Select {
         expressions: expressions.into_some_iter().collect(),

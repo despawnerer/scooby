@@ -9,6 +9,15 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
+/// Start a new `INSERT INTO` query for a given table.
+///
+/// ```
+/// use scooby::postgres::insert_into;
+///
+/// let sql = insert_into("Dummy").default_values().to_string();
+///
+/// assert_eq!(sql, "INSERT INTO Dummy DEFAULT VALUES")
+/// ```
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
         table_name: table_name.into(),
@@ -23,8 +32,13 @@ pub(crate) fn insert_into_with(table_name: TableName, with: WithClause) -> BareI
     }
 }
 
-/* Initial INSERT INTO statement without a valid values clause specified */
-
+/// Bare `INSERT INTO` statement without a valid `VALUES` clause specified
+///
+/// You will want to make use of three methods to convert this into a usable query:
+///
+/// - [`default_values`][BareInsertInto::default_values] to add a `DEFAULT VALUES` clause
+/// - [`values`][BareInsertInto::values] to add `VALUES (...)` clause with unspecified columns
+/// - [`columns`][BareInsertInto::columns] to start building a `(...) VALUES (...)` clause with specific columns
 #[must_use = "Making a bare INSERT INTO query is pointless"]
 #[derive(Debug)]
 pub struct BareInsertInto {

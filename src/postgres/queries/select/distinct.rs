@@ -4,6 +4,7 @@ use itertools::Itertools;
 
 use crate::postgres::general::Expression;
 
+/// An `ALL` | `DISTINCT` | `DISTINCT ON (...)` clause for `SELECT` queries
 #[derive(Debug, Clone)]
 pub enum Distinct {
     All,
