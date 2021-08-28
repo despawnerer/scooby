@@ -2,20 +2,22 @@ use std::fmt::{self, Display, Formatter};
 
 use itertools::Itertools;
 
-use crate::postgres::general::{Column, Condition, Expression, OutputExpression, TableName, WithClause};
+use crate::postgres::general::{
+    Column, Condition, Expression, OutputExpression, TableName, WithClause,
+};
 use crate::tools::IntoIteratorOfSameType;
 
 pub fn update(table_name: impl Into<TableName>) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
         table_name: table_name.into(),
-        with: None
+        with: None,
     }
 }
 
 pub(crate) fn update_with(table_name: TableName, with: WithClause) -> UpdateWithoutAnyValuesSet {
     UpdateWithoutAnyValuesSet {
         table_name,
-        with: Some(with)
+        with: Some(with),
     }
 }
 
@@ -23,12 +25,16 @@ pub(crate) fn update_with(table_name: TableName, with: WithClause) -> UpdateWith
 #[derive(Debug)]
 pub struct UpdateWithoutAnyValuesSet {
     table_name: TableName,
-    with: Option<WithClause>
+    with: Option<WithClause>,
 }
 
 impl UpdateWithoutAnyValuesSet {
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
-        Update::new(self.table_name, vec![(column.into(), value.into())], self.with)
+        Update::new(
+            self.table_name,
+            vec![(column.into(), value.into())],
+            self.with,
+        )
     }
 }
 
@@ -43,7 +49,11 @@ pub struct Update {
 }
 
 impl Update {
-    fn new(table_name: TableName, values: Vec<(Column, Expression)>, with: Option<WithClause>) -> Update {
+    fn new(
+        table_name: TableName,
+        values: Vec<(Column, Expression)>,
+        with: Option<WithClause>,
+    ) -> Update {
         Update {
             table_name,
             values,
@@ -100,7 +110,7 @@ impl Display for Update {
 #[cfg(test)]
 mod tests {
     use crate::postgres::tools::tests::assert_correct_postgresql;
-    use crate::postgres::{select, with, update};
+    use crate::postgres::{select, update, with};
 
     #[test]
     fn update_single_value() {

@@ -2,7 +2,10 @@ use itertools::Itertools;
 use std::fmt::Display;
 
 use crate::postgres::general::{Expression, TableName};
-use crate::postgres::queries::{select_with, delete_from_with, update_with, DeleteFrom, InsertInto, Select, Update, Values, UpdateWithoutAnyValuesSet};
+use crate::postgres::queries::{
+    delete_from_with, select_with, update_with, DeleteFrom, InsertInto, Select, Update,
+    UpdateWithoutAnyValuesSet, Values,
+};
 use crate::tools::IntoIteratorOfSameType;
 
 use super::Column;

@@ -28,7 +28,7 @@ impl DeleteFrom {
             table_name,
             with,
             where_: Vec::new(),
-            returning: Vec::new()
+            returning: Vec::new(),
         }
     }
 
@@ -65,8 +65,8 @@ impl Display for DeleteFrom {
 
 #[cfg(test)]
 mod tests {
-    use crate::postgres::{with, select, delete_from};
     use crate::postgres::tools::tests::assert_correct_postgresql;
+    use crate::postgres::{delete_from, select, with};
 
     #[test]
     fn everything() {

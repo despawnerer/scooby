@@ -23,10 +23,7 @@ pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     }
 }
 
-pub(crate) fn select_with(
-    expressions: Vec<Expression>,
-    with_clause: WithClause,
-) -> Select {
+pub(crate) fn select_with(expressions: Vec<Expression>, with_clause: WithClause) -> Select {
     Select {
         expressions,
         with: Some(with_clause),
