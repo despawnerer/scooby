@@ -30,8 +30,32 @@ impl From<f32> for Expression {
     }
 }
 
+impl From<f64> for Expression {
+    fn from(value: f64) -> Self {
+        Expression(value.to_string())
+    }
+}
+
+impl From<i32> for Expression {
+    fn from(value: i32) -> Self {
+        Expression(value.to_string())
+    }
+}
+
+impl From<i64> for Expression {
+    fn from(value: i64) -> Self {
+        Expression(value.to_string())
+    }
+}
+
 impl From<u32> for Expression {
     fn from(value: u32) -> Self {
+        Expression(value.to_string())
+    }
+}
+
+impl From<u64> for Expression {
+    fn from(value: u64) -> Self {
         Expression(value.to_string())
     }
 }
