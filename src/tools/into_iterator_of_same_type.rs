@@ -243,3 +243,105 @@ where
         ])
     }
 }
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10> IntoIteratorOfSameType<T>
+    for (U1, U2, U3, U4, U5, U6, U7, U8, U9, U10)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+    U9: Into<T>,
+    U10: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 10>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+            self.8.into(),
+            self.9.into(),
+        ])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11> IntoIteratorOfSameType<T>
+    for (U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U10, U11)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+    U9: Into<T>,
+    U10: Into<T>,
+    U11: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 11>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+            self.8.into(),
+            self.9.into(),
+            self.10.into(),
+        ])
+    }
+}
+
+impl<T, U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U11, U12> IntoIteratorOfSameType<T>
+    for (U1, U2, U3, U4, U5, U6, U7, U8, U9, U10, U10, U11, U12)
+where
+    U1: Into<T>,
+    U2: Into<T>,
+    U3: Into<T>,
+    U4: Into<T>,
+    U5: Into<T>,
+    U6: Into<T>,
+    U7: Into<T>,
+    U8: Into<T>,
+    U9: Into<T>,
+    U10: Into<T>,
+    U11: Into<T>,
+    U12: Into<T>,
+{
+    type Iterator = std::array::IntoIter<T, 12>;
+
+    fn into_some_iter(self) -> Self::Iterator {
+        IntoIterator::into_iter([
+            self.0.into(),
+            self.1.into(),
+            self.2.into(),
+            self.3.into(),
+            self.4.into(),
+            self.5.into(),
+            self.6.into(),
+            self.7.into(),
+            self.8.into(),
+            self.9.into(),
+            self.10.into(),
+            self.11.into(),
+        ])
+    }
+}

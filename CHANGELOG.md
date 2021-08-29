@@ -2,6 +2,7 @@
 
 next
 ----
+- Implement `IntoIteratorOfSameType` and `IntoNonZeroArray` for additional tuples up to 12
 
 0.2.0
 -----
