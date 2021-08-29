@@ -4,7 +4,7 @@ mod select;
 mod update;
 
 pub use delete_from::{delete_from, DeleteFrom};
-pub use insert_into::{insert_into, BareInsertInto, InsertInto, Values};
+pub use insert_into::{insert_into, BareInsertInto, InsertInto, Values, InsertIntoColumnsBuilder};
 pub use select::{select, Joinable, Orderable, Select};
 pub use update::{update, BareUpdate, Update};
 
