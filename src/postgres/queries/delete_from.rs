@@ -5,6 +5,28 @@ use itertools::Itertools;
 use crate::postgres::general::{Condition, OutputExpression, TableName, WithClause};
 use crate::tools::IntoIteratorOfSameType;
 
+/// Create a new `DELETE FROM` query with the given table name.
+///
+/// Returns a [`DeleteFrom`] structure that allows adding additional clauses. Call `to_string` to finalize and get SQL.
+///
+/// # Example
+///
+/// ```
+/// use scooby::postgres::delete_from;
+/// let sql = delete_from("Dummy").to_string();
+/// assert_eq!(sql, "DELETE FROM Dummy");
+/// ```
+///
+/// # Supported clauses
+///
+/// | Clause      | Method                               |
+/// |-------------|--------------------------------------|
+/// | `WHERE`     | [`where_`][DeleteFrom::where_]       |
+/// | `RETURNING` | [`returning`][DeleteFrom::returning] |
+///
+/// # Specifying a `WITH` clause
+///
+/// To create a `DELETE FROM` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom::new(table_name.into(), None)
 }
@@ -13,6 +35,11 @@ pub(crate) fn delete_from_with(table_name: TableName, with: WithClause) -> Delet
     DeleteFrom::new(table_name, Some(with))
 }
 
+/// `DELETE FROM` statement with optional `WHERE` conditions and `RETURNING` clauses.
+///
+/// Finalize and turn into `String` by calling `to_string`
+///
+/// See [`delete_from`] docs for more details and examples.
 #[must_use = "Making a DELETE FROM without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct DeleteFrom {
@@ -32,11 +59,35 @@ impl DeleteFrom {
         }
     }
 
+    /// Add one or more `WHERE` conditions, `AND`'ed together with themselves and existing conditions.
+    ///
+    /// ```
+    /// use scooby::postgres::delete_from;
+    ///
+    /// let sql = delete_from("Dummy")
+    ///     .where_(("x > 1", "y > 1"))
+    ///     .where_("z > 1")
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "DELETE FROM Dummy WHERE x > 1 AND y > 1 AND z > 1");
+    /// ```
     pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
         self
     }
 
+    /// Add one or more `RETURNING` expressions.
+    ///
+    /// ```
+    /// use scooby::postgres::delete_from;
+    ///
+    /// let sql = delete_from("Dummy")
+    ///     .returning("id")
+    ///     .returning(("width", "height"))
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "DELETE FROM Dummy RETURNING id, width, height");
+    /// ```
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self

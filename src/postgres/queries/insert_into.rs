@@ -9,7 +9,7 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
-/// Start a new `INSERT INTO` query for a given table.
+/// Start a new `INSERT INTO` query with the given table name.
 ///
 /// ```
 /// use scooby::postgres::insert_into;

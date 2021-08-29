@@ -3,8 +3,8 @@ use std::iter::{once, Once};
 
 use itertools::Itertools;
 
-use crate::postgres::general::TableName;
-use crate::postgres::{Alias, Select};
+use crate::postgres::general::{Alias, TableName};
+use crate::postgres::queries::Select;
 use crate::tools::IntoIteratorOfSameType;
 
 use super::join::Join;

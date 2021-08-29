@@ -1,12 +1,10 @@
-mod general;
-mod queries;
-mod tools;
+pub mod general;
+pub mod queries;
+pub mod tools;
 
-pub use general::{
-    with, Alias, Aliasable, Column, Expression, WithClause, WithQuery, WithQueryBuilder,
-};
+pub use general::{with, Aliasable};
 pub use queries::{
-    delete_from, insert_into, select, update, BareInsertInto, BareUpdate, DeleteFrom, InsertInto,
-    Joinable, Orderable, Select, Update,
+    delete_from, insert_into, select, update, DeleteFrom, InsertInto, Joinable, Orderable, Select,
+    Update,
 };
 pub use tools::Parameters;
