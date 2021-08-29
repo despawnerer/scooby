@@ -32,10 +32,6 @@ impl WithClause {
         }
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.queries.is_empty()
-    }
-
     pub fn and(self, name: impl Into<TableName>) -> WithQueryBuilder {
         WithQueryBuilder {
             clause: self,
