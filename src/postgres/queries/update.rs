@@ -7,7 +7,7 @@ use crate::postgres::general::{
 };
 use crate::tools::IntoIteratorOfSameType;
 
-/// Start building a new `UPDATE` query with the given table name.
+/// Start building a new `UPDATE` statement with the given table name.
 ///
 /// Returns a [`BareUpdate`] structure that requires that you at least set one
 /// column + expression pair through [`set`][BareUpdate::set] method.
@@ -27,7 +27,7 @@ use crate::tools::IntoIteratorOfSameType;
 ///
 /// # Specifying a `WITH` clause
 ///
-/// To create a `UPDATE` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+/// To create a `UPDATE` statement with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
 ///
 /// # Examples
 ///
@@ -97,7 +97,7 @@ impl BareUpdate {
     }
 }
 
-/// `UPDATE` statement with optional `WHERE` conditions and `RETURNING` clauses.
+/// `UPDATE` statement with at least one set of values, and possibly additional clauses.
 ///
 /// Finalize and turn into `String` by calling `to_string`.
 ///

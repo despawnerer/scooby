@@ -9,7 +9,7 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
-/// Start building a new `INSERT INTO` query with the given table name.
+/// Start building a new `INSERT INTO` statement with the given table name.
 ///
 /// Returns a [`BareInsertInto`] structure which requires that you specify
 /// what type of a `VALUES` clause you wish to have:
@@ -33,7 +33,7 @@ pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 ///
 /// # Specifying a `WITH` clause
 ///
-/// To create an `INSERT INTO` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+/// To create an `INSERT INTO` statement with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
 ///
 /// # Examples
 ///
@@ -189,7 +189,7 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
     }
 }
 
-/// `INSERT INTO` statement with a `VALUES` clause and optional additional clauses.
+/// `INSERT INTO` statement with a `VALUES` clause, and possibly additional clauses.
 ///
 /// Finalize and turn into `String` by calling `to_string`.
 ///

@@ -5,7 +5,7 @@ use itertools::Itertools;
 use crate::postgres::general::{Condition, OutputExpression, TableName, WithClause};
 use crate::tools::IntoIteratorOfSameType;
 
-/// Create a new `DELETE FROM` query with the given table name.
+/// Create a new `DELETE FROM` statement with the given table name.
 ///
 /// Returns a [`DeleteFrom`] structure that allows adding additional clauses. Call `to_string` to finalize and get SQL.
 ///
@@ -18,7 +18,7 @@ use crate::tools::IntoIteratorOfSameType;
 ///
 /// # Specifying a `WITH` clause
 ///
-/// To create a `DELETE FROM` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+/// To create a `DELETE FROM` statement with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
 ///
 /// # Examples
 ///
@@ -49,7 +49,7 @@ pub(crate) fn delete_from_with(table_name: TableName, with: WithClause) -> Delet
     DeleteFrom::new(table_name, Some(with))
 }
 
-/// `DELETE FROM` statement with optional `WHERE` conditions and `RETURNING` clauses.
+/// `DELETE FROM` statement, possibly with additional clauses.
 ///
 /// Finalize and turn into `String` by calling `to_string`.
 ///
