@@ -1,3 +1,23 @@
+//! Implementation of PostgreSQL dialect of SQL, including some PostgreSQL specific features and tools.
+//!
+//! # Supported statements
+//!
+//! See each function's docs for details on supported clauses and features.
+//!
+//! | Entry function  | SQL statement |
+//! |-----------------|---------------|
+//! | [`select`]      | `SELECT`      |
+//! | [`insert_into`] | `INSERT INTO` |
+//! | [`delete_from`] | `DELETE FROM` |
+//! | [`update`]      | `UPDATE`      |
+//! | [`with`]        | `WITH`        |
+//!
+//! # Tools
+//!
+//! | Tool           | Description                               |
+//! |----------------|-------------------------------------------|
+//! | [`Parameters`] | Generator of query parameter placeholders |
+//!
 pub mod general;
 pub mod queries;
 pub mod tools;
