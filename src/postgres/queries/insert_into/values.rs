@@ -40,7 +40,10 @@ impl<const N: usize> WithoutColumns<N> {
         WithoutColumns { values }
     }
 
-    pub(crate) fn add<T: IntoNonZeroArray<Expression, N>>(&mut self, iter: impl IntoIterator<Item = T>) {
+    pub(crate) fn add<T: IntoNonZeroArray<Expression, N>>(
+        &mut self,
+        iter: impl IntoIterator<Item = T>,
+    ) {
         self.values
             .extend(iter.into_iter().map(IntoNonZeroArray::into_non_zero_array))
     }
@@ -75,7 +78,10 @@ impl<const N: usize> WithColumns<N> {
         WithColumns { columns, values }
     }
 
-    pub(crate) fn add<T: IntoNonZeroArray<Expression, N>>(&mut self, iter: impl IntoIterator<Item = T>) {
+    pub(crate) fn add<T: IntoNonZeroArray<Expression, N>>(
+        &mut self,
+        iter: impl IntoIterator<Item = T>,
+    ) {
         self.values
             .extend(iter.into_iter().map(IntoNonZeroArray::into_non_zero_array))
     }

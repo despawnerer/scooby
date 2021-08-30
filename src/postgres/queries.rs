@@ -8,8 +8,8 @@ mod select;
 mod update;
 
 pub use delete_from::{delete_from, DeleteFrom};
-pub use insert_into::{insert_into, BareInsertInto, InsertInto, Values, InsertIntoColumnsBuilder};
-pub use select::{select, Joinable, Orderable, Select, OrderBy, FromItem};
+pub use insert_into::{insert_into, BareInsertInto, InsertInto, InsertIntoColumnsBuilder, Values};
+pub use select::{select, FromItem, Joinable, OrderBy, Orderable, Select};
 pub use update::{update, BareUpdate, Update};
 
 pub(crate) use delete_from::delete_from_with;

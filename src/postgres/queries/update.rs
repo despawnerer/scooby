@@ -141,7 +141,6 @@ impl Update {
         self
     }
 
-
     /// Add one or more `WHERE` conditions, `AND`'ed together with themselves and existing conditions.
     ///
     /// ```
