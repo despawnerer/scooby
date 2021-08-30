@@ -3,6 +3,9 @@
 next
 ----
 
+0.3.0
+-----
+
 - Write real documentation for most things
 - Remove unnecessary `is_empty` method from `WithClause` as the clause should never be empty
 - Implement `IntoIteratorOfSameType` and `IntoNonZeroArray` for additional tuples up to 12

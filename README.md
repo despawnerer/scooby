@@ -2,6 +2,7 @@ Scooby
 ======
 
 [![Latest Version](https://img.shields.io/crates/v/scooby.svg)](https://crates.io/crates/scooby)
+[![docs](https://docs.rs/scooby/badge.svg)](https://docs.rs/scooby)
 
 An SQL query builder with a pleasant fluent API closely imitating actual SQL. Meant to comfortably build dynamic queries with a little bit of safety checks sprinkled on top to ensure you don't forget important things like `ON` clauses. Does not do quoting, does not do validation.
 
@@ -59,25 +60,6 @@ Examples
 
 ```rust
 use scooby::postgres::{select, Aliasable, Joinable, Orderable};
-
-// SELECT 1 + 1
-select("1 + 1").to_string();
-
-// SELECT id, name, age FROM Person
-select(("id", "name", "age")).from("Person").to_string();
-
-// SELECT * FROM (SELECT id FROM City) AS x
-select("*")
-    .from(select("id").from("City").as_("x"))
-    .to_string();
-
-// SELECT col1, col2 FROM SomeTable LIMIT 10 OFFSET 5
-select("col1")
-    .and_select("col2")
-    .from("SomeTable")
-    .limit(10)
-    .offset(5)
-    .to_string();
 
 // SELECT
 //     country.name AS name,
