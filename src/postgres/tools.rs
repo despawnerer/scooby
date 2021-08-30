@@ -1,3 +1,5 @@
+//! PostgreSQL-specific tools to make your life easier
+
 mod parameters;
 
 #[cfg(test)]

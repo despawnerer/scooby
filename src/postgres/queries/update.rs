@@ -7,6 +7,50 @@ use crate::postgres::general::{
 };
 use crate::tools::IntoIteratorOfSameType;
 
+/// Create a new `UPDATE` query with the given table name.
+///
+/// Returns a [`BareUpdate`] structure that requires that you at least set one
+/// column + expression pair through [`set`][BareUpdate::set] method.
+///
+/// The `set` method, in turn, returns an [`Update`] structure, through which
+/// more values may be set, and additional clauses may be added.
+///
+/// Call `to_string` on the `Update` structure to finalize and get an SQL string.
+///
+/// # Supported clauses
+///
+/// | Clause      | Method                           |
+/// |-------------|----------------------------------|
+/// | `SET`       | [`set`][Update::set]             |
+/// | `WHERE`     | [`where_`][Update::where_]       |
+/// | `RETURNING` | [`returning`][Update::returning] |
+///
+/// # Specifying a `WITH` clause
+///
+/// To create a `UPDATE` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+///
+/// # Examples
+///
+/// ```
+/// use scooby::postgres::update;
+///
+/// let sql = update("Dummy").set("x", 1).to_string();
+///
+/// assert_eq!(sql, "UPDATE Dummy SET x = 1");
+/// ```
+///
+/// ```
+/// use scooby::postgres::update;
+///
+/// let sql = update("Dummy")
+///     .set("x", 1)
+///     .where_("x > 0")
+///     .where_("y < 10")
+///     .returning("id")
+///     .to_string();
+///
+/// assert_eq!(sql, "UPDATE Dummy SET x = 1 WHERE x > 0 AND y < 10 RETURNING id");
+/// ```
 pub fn update(table_name: impl Into<TableName>) -> BareUpdate {
     BareUpdate {
         table_name: table_name.into(),
@@ -21,6 +65,10 @@ pub(crate) fn update_with(table_name: TableName, with: WithClause) -> BareUpdate
     }
 }
 
+/// Bare `UPDATE` statement without a `SET` clause specified
+///
+/// You will want to use the [`set`][BareUpdate::set] method add a `SET` clause
+/// with a column + expression pair and turn this into a usable query.
 #[must_use = "Making an UPDATE query with no values set is pointless"]
 #[derive(Debug)]
 pub struct BareUpdate {
@@ -29,6 +77,17 @@ pub struct BareUpdate {
 }
 
 impl BareUpdate {
+    /// Add a `SET` clause to the statement with the first column + expression pair.
+    ///
+    /// Further values can be added through [`set`][Update::set] method on the returned [`Update`] structure.
+    ///
+    /// ```
+    /// use scooby::postgres::update;
+    ///
+    /// let sql = update("Dummy").set("x", 1).to_string();
+    ///
+    /// assert_eq!(sql, "UPDATE Dummy SET x = 1");
+    /// ```
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
         Update::new(
             self.table_name,
@@ -38,6 +97,11 @@ impl BareUpdate {
     }
 }
 
+/// `UPDATE` statement with optional `WHERE` conditions and `RETURNING` clauses.
+///
+/// Finalize and turn into `String` by calling `to_string`.
+///
+/// See [`update`] docs for more details and examples.
 #[must_use = "Making an UPDATE query without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct Update {
@@ -63,16 +127,52 @@ impl Update {
         }
     }
 
+    /// Add a column + expression pair to the `SET` clause of this statement
+    ///
+    /// ```
+    /// use scooby::postgres::update;
+    ///
+    /// let sql = update("Dummy").set("x", 1).set("y", 2).to_string();
+    ///
+    /// assert_eq!(sql, "UPDATE Dummy SET x = 1, y = 2");
+    /// ```
     pub fn set(mut self, column: impl Into<Column>, value: impl Into<Expression>) -> Self {
         self.values.push((column.into(), value.into()));
         self
     }
 
+
+    /// Add one or more `WHERE` conditions, `AND`'ed together with themselves and existing conditions.
+    ///
+    /// ```
+    /// use scooby::postgres::update;
+    ///
+    /// let sql = update("Dummy")
+    ///     .set("x", 1)
+    ///     .where_(("x > 1", "y > 1"))
+    ///     .where_("z > 1")
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "UPDATE Dummy SET x = 1 WHERE x > 1 AND y > 1 AND z > 1");
+    /// ```
     pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
         self
     }
 
+    /// Add one or more `RETURNING` expressions.
+    ///
+    /// ```
+    /// use scooby::postgres::update;
+    ///
+    /// let sql = update("Dummy")
+    ///     .set("x", 1)
+    ///     .returning("id")
+    ///     .returning(("width", "height"))
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "UPDATE Dummy SET x = 1 RETURNING id, width, height");
+    /// ```
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self

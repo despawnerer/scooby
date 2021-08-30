@@ -1,3 +1,7 @@
+//! Specific query related functions and types.
+//!
+//! Most likely you want documentation for the [main module][`crate::postgres`].
+
 mod delete_from;
 mod insert_into;
 mod select;

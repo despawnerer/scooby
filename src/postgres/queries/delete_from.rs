@@ -52,7 +52,7 @@ pub(crate) fn delete_from_with(table_name: TableName, with: WithClause) -> Delet
 
 /// `DELETE FROM` statement with optional `WHERE` conditions and `RETURNING` clauses.
 ///
-/// Finalize and turn into `String` by calling `to_string`
+/// Finalize and turn into `String` by calling `to_string`.
 ///
 /// See [`delete_from`] docs for more details and examples.
 #[must_use = "Making a DELETE FROM without using it is pointless"]

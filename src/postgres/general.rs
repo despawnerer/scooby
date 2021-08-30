@@ -1,3 +1,5 @@
+//! Bits that are usable in different types of queries
+
 mod alias;
 mod column;
 mod expression;
