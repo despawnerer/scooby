@@ -110,10 +110,6 @@ pub struct Select {
 }
 
 impl Select {
-    pub fn new() -> Self {
-        Default::default()
-    }
-
     /// Add more expressions to be selected
     ///
     /// ```
