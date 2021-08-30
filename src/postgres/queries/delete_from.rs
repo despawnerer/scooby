@@ -9,14 +9,6 @@ use crate::tools::IntoIteratorOfSameType;
 ///
 /// Returns a [`DeleteFrom`] structure that allows adding additional clauses. Call `to_string` to finalize and get SQL.
 ///
-/// # Example
-///
-/// ```
-/// use scooby::postgres::delete_from;
-/// let sql = delete_from("Dummy").to_string();
-/// assert_eq!(sql, "DELETE FROM Dummy");
-/// ```
-///
 /// # Supported clauses
 ///
 /// | Clause      | Method                               |
@@ -27,6 +19,29 @@ use crate::tools::IntoIteratorOfSameType;
 /// # Specifying a `WITH` clause
 ///
 /// To create a `DELETE FROM` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+///
+/// # Examples
+///
+/// ```
+/// use scooby::postgres::delete_from;
+///
+/// let sql = delete_from("Dummy").to_string();
+///
+/// assert_eq!(sql, "DELETE FROM Dummy");
+/// ```
+///
+/// ```
+/// use scooby::postgres::delete_from;
+///
+/// let sql = delete_from("Dummy")
+///     .where_("x > 0")
+///     .where_("y < 10")
+///     .returning("id")
+///     .to_string();
+///
+/// assert_eq!(sql, "DELETE FROM Dummy WHERE x > 0 AND y < 10 RETURNING id");
+/// ```
+
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom::new(table_name.into(), None)
 }
