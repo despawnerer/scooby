@@ -9,7 +9,33 @@ use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
-/// Start a new `INSERT INTO` query with the given table name.
+/// Start building a new `INSERT INTO` query with the given table name.
+///
+/// Returns a [`BareInsertInto`] structure which requires that you specify
+/// what type of a `VALUES` clause you wish to have:
+///
+/// 1. For `DEFAULT VALUES`, call [`default_values`][BareInsertInto::default_values]
+/// 2. For `VALUES (...)` with unspecified columns, call [`values`][BareInsertInto::values]
+/// 3. For `(...) VALUES (...)`, call [`columns`][BareInsertInto::columns]
+///
+/// First two options will give you an [`InsertInto`] structure directly
+///
+/// Option 3 will expect you to specify at least one set of values through [`values`][InsertIntoColumnsBuilder::values] method
+///
+/// Call `to_string` on the final `InsertInto` structure to finalize and get an SQL string.
+///
+/// # Supported clauses
+///
+/// | Clause      | Method                               |
+/// |-------------|--------------------------------------|
+/// | `VALUES`    | [`values`][InsertInto::values]       |
+/// | `RETURNING` | [`returning`][InsertInto::returning] |
+///
+/// # Specifying a `WITH` clause
+///
+/// To create an `INSERT INTO` query with a `WITH` clause, start with [`with`][crate::postgres::with] instead of this function.
+///
+/// # Examples
 ///
 /// ```
 /// use scooby::postgres::insert_into;
@@ -17,6 +43,18 @@ pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 /// let sql = insert_into("Dummy").default_values().to_string();
 ///
 /// assert_eq!(sql, "INSERT INTO Dummy DEFAULT VALUES")
+/// ```
+///
+/// ```
+/// use scooby::postgres::insert_into;
+///
+/// let sql = insert_into("Rectangle")
+///     .columns(("width", "height"))
+///     .values([(10, 30)])
+///     .returning("id")
+///     .to_string();
+///
+/// assert_eq!(sql, "INSERT INTO Rectangle (width, height) VALUES (10, 30) RETURNING id");
 /// ```
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
@@ -47,10 +85,28 @@ pub struct BareInsertInto {
 }
 
 impl BareInsertInto {
+    /// Add a `DEFAULT VALUES` clause to this statement
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy").default_values().to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy DEFAULT VALUES");
+    /// ```
     pub fn default_values(self) -> InsertInto<DefaultValues> {
         InsertInto::new(self.table_name, DefaultValues, self.with)
     }
 
+    /// Add a `VALUES (...)` clause with unspecified columns to this statement
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy").values([(1, 2), (3, 4)]).to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy VALUES (1, 2), (3, 4)");
+    /// ```
     pub fn values<T: IntoNonZeroArray<Expression, N>, const N: usize>(
         self,
         values: impl IntoIterator<Item = T>,
@@ -63,6 +119,21 @@ impl BareInsertInto {
         InsertInto::new(self.table_name, WithoutColumns::new(values), self.with)
     }
 
+    /// Begin building a `(...) VALUES (...)` clause for this statement.
+    ///
+    /// Expects a non-zero list of columns: an array, a tuple, or a single value.
+    ///
+    /// Returns an [`InsertIntoColumnsBuilder`] structure which requires you to specify at least one set of values.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .columns(("col1", "col2"))
+    ///     .values([(1, 2), (3, 4)])
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4)");
     pub fn columns<const N: usize>(
         self,
         columns: impl IntoNonZeroArray<Column, N>,
@@ -75,8 +146,9 @@ impl BareInsertInto {
     }
 }
 
-/* Intermediate struct to ensure one cannot build an INSERT INTO statement with columns, but without values */
-
+/// Intermediate structure to ensure one cannot build an `INSERT INTO` statement with columns, but without values
+///
+/// Use the only provided [`values`][InsertIntoColumnsBuilder::values] method to add at least one set of values.
 #[must_use = "Making a bare INSERT INTO query with columns is pointless"]
 #[derive(Debug)]
 pub struct InsertIntoColumnsBuilder<const N: usize> {
@@ -86,6 +158,20 @@ pub struct InsertIntoColumnsBuilder<const N: usize> {
 }
 
 impl<const N: usize> InsertIntoColumnsBuilder<N> {
+    /// Add first one or more sets of values.
+    ///
+    /// Further values and additional clauses may be added by calling appropriate methods
+    /// on the returned [`InsertInto`] structure.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .columns(("col1", "col2"))
+    ///     .values([(1, 2), (3, 4)])
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         self,
         values: impl IntoIterator<Item = T>,
@@ -103,8 +189,11 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
     }
 }
 
-/* A valid INSERT INTO statement that can already be stringified */
-
+/// `INSERT INTO` statement with a `VALUES` clause and optional additional clauses.
+///
+/// Finalize and turn into `String` by calling `to_string`.
+///
+/// See [`insert_into`] docs for more details and examples.
 #[must_use = "Making an INSERT INTO query without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct InsertInto<V: Values> {
@@ -124,6 +213,19 @@ impl<V: Values> InsertInto<V> {
         }
     }
 
+    /// Add one or more `RETURNING` expressions.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .default_values()
+    ///     .returning("id")
+    ///     .returning(("width", "height"))
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy DEFAULT VALUES RETURNING id, width, height");
+    /// ```
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
@@ -131,6 +233,18 @@ impl<V: Values> InsertInto<V> {
 }
 
 impl<const N: usize> InsertInto<WithColumns<N>> {
+    /// Add one or more sets of values.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .columns(("col1", "col2"))
+    ///     .values([(1, 2)])
+    ///     .values([(3, 4), (5, 6)])
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4), (5, 6)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,
@@ -141,6 +255,17 @@ impl<const N: usize> InsertInto<WithColumns<N>> {
 }
 
 impl<const N: usize> InsertInto<WithoutColumns<N>> {
+    /// Add one or more sets of values.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .values([(1, 2)])
+    ///     .values([(3, 4), (5, 6)])
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy VALUES (1, 2), (3, 4), (5, 6)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,

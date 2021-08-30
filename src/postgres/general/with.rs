@@ -20,6 +20,17 @@ pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
 }
 
 /// `WITH` clause usable with different types of queries
+///
+/// Use [`and`][WithClause::and] to add a table to the clause.
+///
+/// Use one of four finalizing methods to start building the actual statement with this clause:
+///
+/// - [`select`][WithClause::select]
+/// - [`delete_from`][WithClause::delete_from]
+/// - [`update`][WithClause::update]
+/// - [`insert_into`][WithClause::insert_into]
+///
+/// See [`with`] docs for more details and examples.
 #[derive(Debug, Clone, Default)]
 pub struct WithClause {
     queries: Vec<WithQuery>,
@@ -32,6 +43,7 @@ impl WithClause {
         }
     }
 
+    /// Add another table under the given name
     pub fn and(self, name: impl Into<TableName>) -> WithQueryBuilder {
         WithQueryBuilder {
             clause: self,
@@ -40,18 +52,22 @@ impl WithClause {
         }
     }
 
+    /// Start building a `SELECT` statement with this `WITH` clause
     pub fn select(self, expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
         select_with(expressions.into_some_iter().collect(), self)
     }
 
+    /// Start building a `DELETE FROM` statement with this `WITH` clause
     pub fn delete_from(self, table_name: impl Into<TableName>) -> DeleteFrom {
         delete_from_with(table_name.into(), self)
     }
 
+    /// Start building a `UPDATE` statement with this `WITH` clause
     pub fn update(self, table_name: impl Into<TableName>) -> BareUpdate {
         update_with(table_name.into(), self)
     }
 
+    /// Start building a `INSERT INTO` statement with this `WITH` clause
     pub fn insert_into(self, table_name: impl Into<TableName>) -> BareInsertInto {
         insert_into_with(table_name.into(), self)
     }
@@ -67,6 +83,7 @@ impl Display for WithClause {
     }
 }
 
+/// Specific table inside a `WITH` clause
 #[derive(Debug, Clone)]
 pub struct WithQuery {
     name: TableName,
@@ -88,6 +105,7 @@ impl Display for WithQuery {
     }
 }
 
+/// An intermediate structure ensuring that you specify the definition of the table in the `WITH` clause
 #[derive(Debug)]
 pub struct WithQueryBuilder {
     clause: WithClause,
@@ -101,6 +119,7 @@ impl WithQueryBuilder {
         self
     }
 
+    /// Specify the statement that will be used as a basis for the table
     pub fn as_(mut self, target: impl UsableInWithQuery) -> WithClause {
         self.clause.queries.push(WithQuery {
             name: self.name,
@@ -111,6 +130,12 @@ impl WithQueryBuilder {
     }
 }
 
+/// Marker trait for statements that can be specified inside a `WITH` clause
+///
+/// - `SELECT`
+/// - `INSERT INTO`
+/// - `DELETE FROM`
+/// - `UPDATE`
 pub trait UsableInWithQuery: Display {}
 
 impl UsableInWithQuery for Select {}

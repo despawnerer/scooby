@@ -41,7 +41,6 @@ use crate::tools::IntoIteratorOfSameType;
 ///
 /// assert_eq!(sql, "DELETE FROM Dummy WHERE x > 0 AND y < 10 RETURNING id");
 /// ```
-
 pub fn delete_from(table_name: impl Into<TableName>) -> DeleteFrom {
     DeleteFrom::new(table_name.into(), None)
 }
