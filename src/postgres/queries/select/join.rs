@@ -6,8 +6,7 @@ use crate::tools::IntoIteratorOfSameType;
 
 use super::FromItem;
 
-/* Complete representation of a join */
-
+/// `JOIN` of some type with its condition if necessary
 #[derive(Debug, Clone)]
 pub struct Join {
     type_: JoinType,
@@ -79,8 +78,7 @@ impl Display for JoinCondition {
     }
 }
 
-/* Flexible join-building thing */
-
+/// Things that can be `JOIN`'d upon
 pub trait Joinable {
     fn join(self, to: impl Into<FromItem>) -> JoinBuilder;
     fn inner_join(self, to: impl Into<FromItem>) -> JoinBuilder;

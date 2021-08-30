@@ -4,7 +4,9 @@ use std::iter::{once, Once};
 use crate::postgres::general::SortExpression;
 use crate::tools::IntoIteratorOfSameType;
 
-/// An `ORDER BY` clause for `SELECT` queries
+/// `ORDER BY` clause for `SELECT` queries
+///
+/// See [`Orderable`] trait for details
 #[derive(Debug, Clone)]
 pub struct OrderBy {
     expression: SortExpression,
@@ -91,10 +93,15 @@ impl Display for Direction {
 
 /* Convenience */
 
+/// Things that can have `ORDER BY` clause options applied to them
 pub trait Orderable {
+    /// `DESC` sorting
     fn desc(self) -> OrderBy;
+    /// `ASC` sorting
     fn asc(self) -> OrderBy;
+    /// Set `NULLS FIRST` option
     fn nulls_first(self) -> OrderBy;
+    /// Set `NULLS LAST` option
     fn nulls_last(self) -> OrderBy;
 }
 

@@ -4,7 +4,7 @@ use std::iter::{once, Once};
 use crate::postgres::Select;
 use crate::tools::IntoIteratorOfSameType;
 
-/// `x AS y` SQL alias
+/// `x AS y` alias
 #[derive(Debug, Clone)]
 pub struct Alias {
     original: String,
@@ -23,6 +23,9 @@ impl From<Alias> for String {
     }
 }
 
+/// Things that may be aliased `x AS y` style
+///
+/// Strings and `SELECT` statements really.
 pub trait Aliasable {
     fn as_(self, alias: &str) -> Alias;
 }

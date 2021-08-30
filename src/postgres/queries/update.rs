@@ -7,7 +7,7 @@ use crate::postgres::general::{
 };
 use crate::tools::IntoIteratorOfSameType;
 
-/// Create a new `UPDATE` query with the given table name.
+/// Start building a new `UPDATE` query with the given table name.
 ///
 /// Returns a [`BareUpdate`] structure that requires that you at least set one
 /// column + expression pair through [`set`][BareUpdate::set] method.
