@@ -2,6 +2,7 @@
 
 next
 ----
+- Write real documentation for most things
 - Remove unnecessary `is_empty` method from `WithClause` as the clause should never be empty
 - Implement `IntoIteratorOfSameType` and `IntoNonZeroArray` for additional tuples up to 12
 - Support `f64`, `i32`, `i64` and `u64` as types convertible into `Expression`
