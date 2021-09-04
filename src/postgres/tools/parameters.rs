@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 use itertools::Itertools;
 
 /// Generator of PostgreSQL parameter placeholders for dynamic queries with multiple values
@@ -11,10 +13,12 @@ use itertools::Itertools;
 /// let p1 = params.next();
 /// let p2 = params.next();
 /// let p345 = params.next_n(3);
+/// let p67 = params.next_array::<2>();
 ///
 /// assert_eq!(p1, "$1");
 /// assert_eq!(p2, "$2");
 /// assert_eq!(p345, "$3, $4, $5");
+/// assert_eq!(p67, ["$6", "$7"]);
 /// ```
 pub struct Parameters {
     current: usize,
@@ -39,6 +43,24 @@ impl Parameters {
         let s = (self.current..last).map(|x| format!("${}", x)).join(", ");
         self.current = last;
         s
+    }
+
+    /// Return N next placeholders as an array of size N
+    pub fn next_array<const N: usize>(&mut self) -> [String; N] {
+        unsafe {
+            let mut result = MaybeUninit::uninit();
+            let start = result.as_mut_ptr() as *mut String;
+
+            for pos in 0..N {
+                // SAFETY: safe because loop ensures `start.add(pos)`
+                //         is always on an array element, of type String
+                start.add(pos).write(self.next());
+            }
+
+            // SAFETY: safe because loop ensures entire array
+            //         has been manually initialised
+            result.assume_init()
+        }
     }
 }
 
@@ -76,5 +98,21 @@ mod tests {
         let mut params = Parameters::new();
         params.next_n(3);
         assert_eq!(params.next_n(3), "$4, $5, $6");
+    }
+
+    #[test]
+    fn next_arr() {
+        let mut params = Parameters::new();
+        let p = params.next_array::<5>();
+        assert_eq!(p, ["$1", "$2", "$3", "$4", "$5"]);
+    }
+
+    #[test]
+    fn next_arr_twice() {
+        let mut params = Parameters::new();
+        let p1 = params.next_array::<2>();
+        let p2 = params.next_array::<3>();
+        assert_eq!(p1, ["$1", "$2"]);
+        assert_eq!(p2, ["$3", "$4", "$5"]);
     }
 }

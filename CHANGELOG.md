@@ -2,6 +2,7 @@
 
 next
 ----
+- Add `Parameters::next_array` function returning placeholder as an array, intended to be used with INSERT INTO queries
 
 0.3.0
 -----

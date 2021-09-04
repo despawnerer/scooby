@@ -46,15 +46,17 @@ pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 /// ```
 ///
 /// ```
-/// use scooby::postgres::insert_into;
+/// use scooby::postgres::{insert_into, Parameters};
+///
+/// let mut params = Parameters::new();
 ///
 /// let sql = insert_into("Rectangle")
 ///     .columns(("width", "height"))
-///     .values([(10, 30)])
+///     .values([params.next_array()])
 ///     .returning("id")
 ///     .to_string();
 ///
-/// assert_eq!(sql, "INSERT INTO Rectangle (width, height) VALUES (10, 30) RETURNING id");
+/// assert_eq!(sql, "INSERT INTO Rectangle (width, height) VALUES ($1, $2) RETURNING id");
 /// ```
 pub fn insert_into(table_name: impl Into<TableName>) -> BareInsertInto {
     BareInsertInto {
@@ -294,7 +296,7 @@ impl<V: Values> Display for InsertInto<V> {
 #[cfg(test)]
 mod tests {
     use crate::postgres::tools::tests::assert_correct_postgresql;
-    use crate::postgres::{insert_into, select, with};
+    use crate::postgres::{insert_into, select, with, Parameters};
 
     #[test]
     fn default_values() {
@@ -331,7 +333,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn zero_length_columns() {
-        let sql = insert_into("Dummy").columns([]).values([[]]).to_string();
+        let values: [[String; 0]; 1] = [[]];
+        let sql = insert_into("Dummy").columns([]).values(values).to_string();
 
         assert_correct_postgresql(&sql, "INSERT INTO Dummy () VALUES ");
     }
@@ -420,5 +423,28 @@ mod tests {
             &sql,
             "WITH thing AS (SELECT 1 + 1) INSERT INTO Dummy VALUES (a)",
         );
+    }
+
+    #[test]
+    fn array_params_with_columns() {
+        let mut params = Parameters::new();
+
+        let sql = insert_into("Dummy")
+            .columns(("col1", "col2"))
+            .values([params.next_array()])
+            .to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy (col1, col2) VALUES ($1, $2)");
+    }
+
+    #[test]
+    fn array_params_without_columns() {
+        let mut params = Parameters::new();
+
+        let sql = insert_into("Dummy")
+            .values([params.next_array::<2>()])
+            .to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES ($1, $2)");
     }
 }

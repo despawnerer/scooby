@@ -1,3 +1,5 @@
+use std::mem::MaybeUninit;
+
 use std::{
     fmt::{self, Display, Formatter},
     iter::{Copied, Map},
@@ -87,6 +89,25 @@ impl IntoNonZeroArray<Expression, 1> for &str {
 impl IntoNonZeroArray<Expression, 1> for String {
     fn into_non_zero_array(self) -> [Expression; 1] {
         [Expression(self)]
+    }
+}
+
+impl<const N: usize> IntoNonZeroArray<Expression, N> for [String; N] {
+    fn into_non_zero_array(self) -> [Expression; N] {
+        unsafe {
+            let mut result = MaybeUninit::uninit();
+            let start = result.as_mut_ptr() as *mut Expression;
+
+            for (pos, s) in IntoIterator::into_iter(self).enumerate() {
+                // SAFETY: safe because loop ensures `start.add(pos)`
+                //         is always on an array element, of type Expression
+                start.add(pos).write(Expression(s));
+            }
+
+            // SAFETY: safe because loop ensures entire array
+            //         has been manually initialised
+            result.assume_init()
+        }
     }
 }
 
