@@ -321,27 +321,27 @@ impl Display for Select {
             write!(f, " {}", distinct)?;
         }
 
-        if self.expressions.len() > 0 {
+        if !self.expressions.is_empty() {
             write!(f, " {}", self.expressions.iter().join(", "))?; // TODO: can be done without creating a temporary string?
         }
 
-        if self.from.len() > 0 {
+        if !self.from.is_empty() {
             write!(f, " FROM {}", self.from.iter().join(", "))?;
         }
 
-        if self.where_.len() > 0 {
+        if !self.where_.is_empty() {
             write!(f, " WHERE {}", self.where_.iter().join(" AND "))?;
         }
 
-        if self.group_by.len() > 0 {
+        if !self.group_by.is_empty() {
             write!(f, " GROUP BY {}", self.group_by.iter().join(", "))?;
         }
 
-        if self.having.len() > 0 {
+        if !self.having.is_empty() {
             write!(f, " HAVING {}", self.having.iter().join(" AND "))?;
         }
 
-        if self.order_by.len() > 0 {
+        if !self.order_by.is_empty() {
             write!(f, " ORDER BY {}", self.order_by.iter().join(", "))?;
         }
 

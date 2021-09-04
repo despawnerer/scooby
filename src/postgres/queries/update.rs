@@ -194,11 +194,11 @@ impl Display for Update {
                 .join(", ")
         )?;
 
-        if self.where_.len() > 0 {
+        if !self.where_.is_empty() {
             write!(f, " WHERE {}", self.where_.iter().join(" AND "))?;
         }
 
-        if self.returning.len() > 0 {
+        if !self.returning.is_empty() {
             write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
         }
 

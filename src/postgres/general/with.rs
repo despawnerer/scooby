@@ -95,7 +95,7 @@ impl Display for WithQuery {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.name)?;
 
-        if self.columns.len() > 0 {
+        if !self.columns.is_empty() {
             write!(f, "({})", self.columns.iter().join(", "))?;
         }
 

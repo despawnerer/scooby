@@ -285,7 +285,7 @@ impl<V: Values> Display for InsertInto<V> {
 
         write!(f, "INSERT INTO {} {}", self.table_name, self.values)?;
 
-        if self.returning.len() > 0 {
+        if !self.returning.is_empty() {
             write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
         }
 

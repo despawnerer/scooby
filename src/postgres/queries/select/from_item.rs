@@ -24,7 +24,7 @@ impl FromItem {
     }
 
     pub fn has_joins(&self) -> bool {
-        self.joins.len() > 0
+        !self.joins.is_empty()
     }
 
     pub fn add_join(&mut self, join: Join) {
@@ -36,7 +36,7 @@ impl Display for FromItem {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(f, "{}", self.table_name)?;
 
-        if self.joins.len() > 0 {
+        if self.has_joins() {
             write!(f, " {}", self.joins.iter().join(" "))? // ha, I'm joining joins, get it?
         }
 
