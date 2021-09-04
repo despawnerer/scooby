@@ -1,6 +1,6 @@
-use std::mem::MaybeUninit;
-
 use itertools::Itertools;
+
+use crate::tools::build_array;
 
 /// Generator of PostgreSQL parameter placeholders for dynamic queries with multiple values
 ///
@@ -47,20 +47,7 @@ impl Parameters {
 
     /// Return N next placeholders as an array of size N
     pub fn next_array<const N: usize>(&mut self) -> [String; N] {
-        unsafe {
-            let mut result = MaybeUninit::uninit();
-            let start = result.as_mut_ptr() as *mut String;
-
-            for pos in 0..N {
-                // SAFETY: safe because loop ensures `start.add(pos)`
-                //         is always on an array element, of type String
-                start.add(pos).write(self.next());
-            }
-
-            // SAFETY: safe because loop ensures entire array
-            //         has been manually initialised
-            result.assume_init()
-        }
+        build_array(|| self.next())
     }
 }
 
