@@ -1,6 +1,9 @@
 use std::mem::MaybeUninit;
 
-pub fn transform_array<T, U, F: FnMut(T) -> U, const N: usize>(source: [T; N], mut mapper: F) -> [U; N] {
+pub fn transform_array<T, U, F: FnMut(T) -> U, const N: usize>(
+    source: [T; N],
+    mut mapper: F,
+) -> [U; N] {
     unsafe {
         let mut result = MaybeUninit::uninit();
         let start = result.as_mut_ptr() as *mut U;
