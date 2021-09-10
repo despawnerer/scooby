@@ -24,42 +24,6 @@ impl From<String> for Expression {
     }
 }
 
-impl From<f32> for Expression {
-    fn from(value: f32) -> Self {
-        Expression(value.to_string())
-    }
-}
-
-impl From<f64> for Expression {
-    fn from(value: f64) -> Self {
-        Expression(value.to_string())
-    }
-}
-
-impl From<i32> for Expression {
-    fn from(value: i32) -> Self {
-        Expression(value.to_string())
-    }
-}
-
-impl From<i64> for Expression {
-    fn from(value: i64) -> Self {
-        Expression(value.to_string())
-    }
-}
-
-impl From<u32> for Expression {
-    fn from(value: u32) -> Self {
-        Expression(value.to_string())
-    }
-}
-
-impl From<u64> for Expression {
-    fn from(value: u64) -> Self {
-        Expression(value.to_string())
-    }
-}
-
 impl From<Column> for Expression {
     fn from(value: Column) -> Self {
         Expression(value.to_string())

@@ -105,9 +105,9 @@ impl BareInsertInto {
     /// ```
     /// use scooby::postgres::insert_into;
     ///
-    /// let sql = insert_into("Dummy").values([(1, 2), (3, 4)]).to_string();
+    /// let sql = insert_into("Dummy").values([("$1", "$2"), ("$3", "$4")]).to_string();
     ///
-    /// assert_eq!(sql, "INSERT INTO Dummy VALUES (1, 2), (3, 4)");
+    /// assert_eq!(sql, "INSERT INTO Dummy VALUES ($1, $2), ($3, $4)");
     /// ```
     pub fn values<T: IntoNonZeroArray<Expression, N>, const N: usize>(
         self,
@@ -132,10 +132,10 @@ impl BareInsertInto {
     ///
     /// let sql = insert_into("Dummy")
     ///     .columns(("col1", "col2"))
-    ///     .values([(1, 2), (3, 4)])
+    ///     .values([("$1", "$2"), ("$3", "$4")])
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4)");
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES ($1, $2), ($3, $4)");
     pub fn columns<const N: usize>(
         self,
         columns: impl IntoNonZeroArray<Column, N>,
@@ -170,10 +170,10 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
     ///
     /// let sql = insert_into("Dummy")
     ///     .columns(("col1", "col2"))
-    ///     .values([(1, 2), (3, 4)])
+    ///     .values([("$1", "$2"), ("$3", "$4")])
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4)");
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES ($1, $2), ($3, $4)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         self,
         values: impl IntoIterator<Item = T>,
@@ -242,11 +242,11 @@ impl<const N: usize> InsertInto<WithColumns<N>> {
     ///
     /// let sql = insert_into("Dummy")
     ///     .columns(("col1", "col2"))
-    ///     .values([(1, 2)])
-    ///     .values([(3, 4), (5, 6)])
+    ///     .values([("$1", "$2")])
+    ///     .values([("$3", "$4"), ("$5", "$6")])
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES (1, 2), (3, 4), (5, 6)");
+    /// assert_eq!(sql, "INSERT INTO Dummy (col1, col2) VALUES ($1, $2), ($3, $4), ($5, $6)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,
@@ -263,11 +263,11 @@ impl<const N: usize> InsertInto<WithoutColumns<N>> {
     /// use scooby::postgres::insert_into;
     ///
     /// let sql = insert_into("Dummy")
-    ///     .values([(1, 2)])
-    ///     .values([(3, 4), (5, 6)])
+    ///     .values([("$1", "$2")])
+    ///     .values([("$3", "$4"), ("$5", "$6")])
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "INSERT INTO Dummy VALUES (1, 2), (3, 4), (5, 6)");
+    /// assert_eq!(sql, "INSERT INTO Dummy VALUES ($1, $2), ($3, $4), ($5, $6)");
     pub fn values<T: IntoNonZeroArray<Expression, N>>(
         mut self,
         new_values: impl IntoIterator<Item = T>,
@@ -320,15 +320,6 @@ mod tests {
         assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (a, b), (c, d), (e, f)");
     }
 
-    #[test]
-    fn no_columns_values_of_different_types() {
-        let sql = insert_into("Dummy")
-            .values([("\"Doug\"", 5, 1.76)])
-            .to_string();
-
-        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (\"Doug\", 5, 1.76)");
-    }
-
     // FIXME: This currently compiles and panics at runtime, but ideally should not even compile
     #[test]
     #[should_panic]
@@ -370,19 +361,6 @@ mod tests {
         assert_correct_postgresql(
             &sql,
             "INSERT INTO Dummy (col1, col2) VALUES (a, b), (c, d), (e, f)",
-        );
-    }
-
-    #[test]
-    fn value_various_types() {
-        let sql = insert_into("Dummy")
-            .columns(("name", "age", "height_in_meters"))
-            .values([("\"Doug\"", 5, 1.76)])
-            .to_string();
-
-        assert_correct_postgresql(
-            &sql,
-            "INSERT INTO Dummy (name, age, height_in_meters) VALUES (\"Doug\", 5, 1.76)",
         );
     }
 

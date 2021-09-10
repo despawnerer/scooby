@@ -34,22 +34,22 @@ use crate::tools::IntoIteratorOfSameType;
 /// ```
 /// use scooby::postgres::update;
 ///
-/// let sql = update("Dummy").set("x", 1).to_string();
+/// let sql = update("Dummy").set("x", "$1").to_string();
 ///
-/// assert_eq!(sql, "UPDATE Dummy SET x = 1");
+/// assert_eq!(sql, "UPDATE Dummy SET x = $1");
 /// ```
 ///
 /// ```
 /// use scooby::postgres::update;
 ///
 /// let sql = update("Dummy")
-///     .set("x", 1)
+///     .set("x", "$1")
 ///     .where_("x > 0")
 ///     .where_("y < 10")
 ///     .returning("id")
 ///     .to_string();
 ///
-/// assert_eq!(sql, "UPDATE Dummy SET x = 1 WHERE x > 0 AND y < 10 RETURNING id");
+/// assert_eq!(sql, "UPDATE Dummy SET x = $1 WHERE x > 0 AND y < 10 RETURNING id");
 /// ```
 pub fn update(table_name: impl Into<TableName>) -> BareUpdate {
     BareUpdate {
@@ -84,9 +84,9 @@ impl BareUpdate {
     /// ```
     /// use scooby::postgres::update;
     ///
-    /// let sql = update("Dummy").set("x", 1).to_string();
+    /// let sql = update("Dummy").set("x", "$1").to_string();
     ///
-    /// assert_eq!(sql, "UPDATE Dummy SET x = 1");
+    /// assert_eq!(sql, "UPDATE Dummy SET x = $1");
     /// ```
     pub fn set(self, column: impl Into<Column>, value: impl Into<Expression>) -> Update {
         Update::new(
@@ -132,9 +132,9 @@ impl Update {
     /// ```
     /// use scooby::postgres::update;
     ///
-    /// let sql = update("Dummy").set("x", 1).set("y", 2).to_string();
+    /// let sql = update("Dummy").set("x", "$1").set("y", "$2").to_string();
     ///
-    /// assert_eq!(sql, "UPDATE Dummy SET x = 1, y = 2");
+    /// assert_eq!(sql, "UPDATE Dummy SET x = $1, y = $2");
     /// ```
     pub fn set(mut self, column: impl Into<Column>, value: impl Into<Expression>) -> Self {
         self.values.push((column.into(), value.into()));
@@ -147,12 +147,12 @@ impl Update {
     /// use scooby::postgres::update;
     ///
     /// let sql = update("Dummy")
-    ///     .set("x", 1)
+    ///     .set("x", "y + z")
     ///     .where_(("x > 1", "y > 1"))
     ///     .where_("z > 1")
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "UPDATE Dummy SET x = 1 WHERE x > 1 AND y > 1 AND z > 1");
+    /// assert_eq!(sql, "UPDATE Dummy SET x = y + z WHERE x > 1 AND y > 1 AND z > 1");
     /// ```
     pub fn where_(mut self, conditions: impl IntoIteratorOfSameType<Condition>) -> Self {
         self.where_.extend(conditions.into_some_iter());
@@ -165,12 +165,12 @@ impl Update {
     /// use scooby::postgres::update;
     ///
     /// let sql = update("Dummy")
-    ///     .set("x", 1)
+    ///     .set("x", "$1")
     ///     .returning("id")
     ///     .returning(("width", "height"))
     ///     .to_string();
     ///
-    /// assert_eq!(sql, "UPDATE Dummy SET x = 1 RETURNING id, width, height");
+    /// assert_eq!(sql, "UPDATE Dummy SET x = $1 RETURNING id, width, height");
     /// ```
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
@@ -231,8 +231,8 @@ mod tests {
 
     #[test]
     fn update_returning() {
-        let sql = update("Dummy").set("x", "y").returning("x").to_string();
-        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = y RETURNING x");
+        let sql = update("Dummy").set("x", "$1").returning("x").to_string();
+        assert_correct_postgresql(&sql, "UPDATE Dummy SET x = $1 RETURNING x");
     }
 
     #[test]

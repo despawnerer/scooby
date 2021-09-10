@@ -5,6 +5,7 @@ next
 - Add `Parameters::next_array` function returning placeholder as an array, intended to be used with INSERT INTO queries
 - Rename `WithClause::and` to `and_with` for clarity
 - Disallow passing `Select` queries directly into `Select::from()` without aliasing them first because PostgreSQL requires it
+- Disallow passing raw numbers into `INSERT INTO` and `UPDATE` statements, and update examples to emphasise the raw SQL'ness of everything
 
 0.3.0
 -----
