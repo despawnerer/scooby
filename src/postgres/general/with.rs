@@ -44,7 +44,7 @@ impl WithClause {
     }
 
     /// Add another table under the given name
-    pub fn and(self, name: impl Into<TableName>) -> WithQueryBuilder {
+    pub fn and_with(self, name: impl Into<TableName>) -> WithQueryBuilder {
         WithQueryBuilder {
             clause: self,
             name: name.into(),

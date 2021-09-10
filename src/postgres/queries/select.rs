@@ -639,7 +639,7 @@ mod tests {
     fn with_two_selects() {
         let sql = with("one")
             .as_(select("1 + 1"))
-            .and("two")
+            .and_with("two")
             .as_(select("2 + 2"))
             .select(("one.x", "two.x"))
             .from(("one", "two"))
@@ -659,7 +659,7 @@ mod tests {
                     .from("orders")
                     .group_by("region"),
             )
-            .and("top_regions")
+            .and_with("top_regions")
             .as_(select("region").from("regional_sales").where_(format!(
                 "total_sales > ({})",
                 select("SUM(total_sales)/10").from("regional_sales")
