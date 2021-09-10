@@ -547,7 +547,6 @@ mod tests {
             .from(select("id").from("City").as_("x"))
             .to_string();
 
-        // FIXME: would be nice to guarantee that subselects MUST be aliased somehow?
         assert_correct_postgresql(&sql, "SELECT * FROM (SELECT id FROM City) AS x");
     }
 

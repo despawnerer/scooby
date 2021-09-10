@@ -4,7 +4,6 @@ use std::iter::{once, Once};
 use itertools::Itertools;
 
 use crate::postgres::general::{Alias, TableName};
-use crate::postgres::queries::Select;
 use crate::tools::IntoIteratorOfSameType;
 
 use super::join::Join;
@@ -61,20 +60,6 @@ impl From<&str> for FromItem {
 impl From<Alias> for FromItem {
     fn from(other: Alias) -> FromItem {
         FromItem::new(other.to_string())
-    }
-}
-
-impl From<Select> for FromItem {
-    fn from(other: Select) -> FromItem {
-        FromItem::new(format!("({})", other))
-    }
-}
-
-impl IntoIteratorOfSameType<FromItem> for Select {
-    type Iterator = Once<FromItem>;
-
-    fn into_some_iter(self) -> Self::Iterator {
-        once(self.into())
     }
 }
 
