@@ -10,6 +10,14 @@ Supports only PostgreSQL syntax at the moment.
 
 Requires Rust 1.54.
 
+Principles
+----------
+
+- Single responsibility: _builds SQL queries_. Everything else is out of scope.
+- API designed to look as _close to actual SQL_ as possible, while being a tiny bit more flexible.
+- Everything is _raw SQL strings_. If you need to pass user input, please use parametrized queries.
+- Obvious _mistakes should be prevented_ at compile time, where possible.
+- No external dependencies
 
 Supported statements, clauses and features
 ------------------------------------------
