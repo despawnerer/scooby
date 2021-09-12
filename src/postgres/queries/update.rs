@@ -1,11 +1,9 @@
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
 use crate::postgres::general::{
     Column, Condition, Expression, OutputExpression, TableName, WithClause,
 };
-use crate::tools::IntoIteratorOfSameType;
+use crate::tools::{joined, IntoIteratorOfSameType};
 
 /// Start building a new `UPDATE` statement with the given table name.
 ///
@@ -188,18 +186,20 @@ impl Display for Update {
             f,
             "UPDATE {} SET {}",
             self.table_name,
-            self.values
-                .iter()
-                .map(|(col, val)| format!("{} = {}", col, val))
-                .join(", ")
+            joined(
+                self.values
+                    .iter()
+                    .map(|(col, val)| format!("{} = {}", col, val)),
+                ", "
+            )
         )?;
 
         if !self.where_.is_empty() {
-            write!(f, " WHERE {}", self.where_.iter().join(" AND "))?;
+            write!(f, " WHERE {}", joined(&self.where_, " AND "))?;
         }
 
         if !self.returning.is_empty() {
-            write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
+            write!(f, " RETURNING {}", joined(&self.returning, ", "))?;
         }
 
         Ok(())

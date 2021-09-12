@@ -1,8 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
-use crate::postgres::general::Expression;
+use crate::{postgres::general::Expression, tools::joined};
 
 /// An `ALL` | `DISTINCT` | `DISTINCT ON (...)` clause for `SELECT` queries
 #[derive(Debug, Clone)]
@@ -18,7 +16,7 @@ impl Display for Distinct {
             Distinct::All => write!(f, "ALL"),
             Distinct::Distinct => write!(f, "DISTINCT"),
             Distinct::DistinctOn(expressions) => {
-                write!(f, "DISTINCT ON ({})", expressions.iter().join(", "))
+                write!(f, "DISTINCT ON ({})", joined(expressions, ", "))
             }
         }
     }

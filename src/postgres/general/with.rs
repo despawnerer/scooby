@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use std::fmt::Display;
 
 use crate::postgres::general::{Expression, TableName};
@@ -6,7 +5,7 @@ use crate::postgres::queries::{
     delete_from_with, insert_into_with, select_with, update_with, BareInsertInto, BareUpdate,
     DeleteFrom, InsertInto, Select, Update, Values,
 };
-use crate::tools::IntoIteratorOfSameType;
+use crate::tools::{joined, IntoIteratorOfSameType};
 
 use super::Column;
 
@@ -75,11 +74,7 @@ impl WithClause {
 
 impl Display for WithClause {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "WITH {}",
-            self.queries.iter().map(WithQuery::to_string).join(", ")
-        )
+        write!(f, "WITH {}", joined(&self.queries, ", "))
     }
 }
 
@@ -96,7 +91,7 @@ impl Display for WithQuery {
         write!(f, "{}", self.name)?;
 
         if !self.columns.is_empty() {
-            write!(f, "({})", self.columns.iter().join(", "))?;
+            write!(f, "({})", joined(&self.columns, ", "))?;
         }
 
         write!(f, " AS ({})", self.as_)?;

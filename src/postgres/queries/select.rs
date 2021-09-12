@@ -6,10 +6,8 @@ mod order_by;
 use std::default::Default;
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
 use crate::postgres::general::{Condition, Expression, WithClause};
-use crate::tools::IntoIteratorOfSameType;
+use crate::tools::{joined, IntoIteratorOfSameType};
 
 pub use distinct::Distinct;
 pub use from_item::FromItem;
@@ -322,27 +320,27 @@ impl Display for Select {
         }
 
         if !self.expressions.is_empty() {
-            write!(f, " {}", self.expressions.iter().join(", "))?; // TODO: can be done without creating a temporary string?
+            write!(f, " {}", joined(&self.expressions, ", "))?;
         }
 
         if !self.from.is_empty() {
-            write!(f, " FROM {}", self.from.iter().join(", "))?;
+            write!(f, " FROM {}", joined(&self.from, ", "))?;
         }
 
         if !self.where_.is_empty() {
-            write!(f, " WHERE {}", self.where_.iter().join(" AND "))?;
+            write!(f, " WHERE {}", joined(&self.where_, " AND "))?;
         }
 
         if !self.group_by.is_empty() {
-            write!(f, " GROUP BY {}", self.group_by.iter().join(", "))?;
+            write!(f, " GROUP BY {}", joined(&self.group_by, ", "))?;
         }
 
         if !self.having.is_empty() {
-            write!(f, " HAVING {}", self.having.iter().join(" AND "))?;
+            write!(f, " HAVING {}", joined(&self.having, " AND "))?;
         }
 
         if !self.order_by.is_empty() {
-            write!(f, " ORDER BY {}", self.order_by.iter().join(", "))?;
+            write!(f, " ORDER BY {}", joined(&self.order_by, ", "))?;
         }
 
         if let Some(limit) = self.limit {

@@ -6,6 +6,8 @@ next
 - Rename `WithClause::and` to `and_with` for clarity
 - Disallow passing `Select` queries directly into `Select::from()` without aliasing them first because PostgreSQL requires it
 - Disallow passing raw numbers into `INSERT INTO` and `UPDATE` statements, and update examples to emphasise the raw SQL'ness of everything
+- No more dependency on Itertools, making the library totally dependency-free
+- No longer allocate strings unnecessarily when we join a bunch of stuff to build SQL
 
 0.3.0
 -----

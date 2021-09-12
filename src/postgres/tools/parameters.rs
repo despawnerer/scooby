@@ -1,6 +1,4 @@
-use itertools::Itertools;
-
-use crate::tools::build_array;
+use crate::tools::{build_array, joined};
 
 /// Generator of PostgreSQL parameter placeholders for dynamic queries with multiple values
 ///
@@ -40,7 +38,8 @@ impl Parameters {
     /// Return N next placeholders in `$x, $y, $z` format
     pub fn next_n(&mut self, n: usize) -> String {
         let last = self.current + n;
-        let s = (self.current..last).map(|x| format!("${}", x)).join(", ");
+        // TODO: This allocates a bunch of strings totally unnecessarily
+        let s = joined((self.current..last).map(|x| format!("${}", x)), ", ").to_string();
         self.current = last;
         s
     }

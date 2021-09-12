@@ -2,10 +2,8 @@ mod values;
 
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
 use crate::postgres::general::{Column, Expression, OutputExpression, TableName, WithClause};
-use crate::tools::{IntoIteratorOfSameType, IntoNonZeroArray};
+use crate::tools::{joined, IntoIteratorOfSameType, IntoNonZeroArray};
 
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
@@ -286,7 +284,7 @@ impl<V: Values> Display for InsertInto<V> {
         write!(f, "INSERT INTO {} {}", self.table_name, self.values)?;
 
         if !self.returning.is_empty() {
-            write!(f, " RETURNING {}", self.returning.iter().join(", "))?;
+            write!(f, " RETURNING {}", joined(&self.returning, ", "))?;
         }
 
         Ok(())

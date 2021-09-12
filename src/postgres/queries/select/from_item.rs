@@ -1,10 +1,8 @@
 use std::fmt::{self, Display, Formatter};
 use std::iter::{once, Once};
 
-use itertools::Itertools;
-
 use crate::postgres::general::{Alias, TableName};
-use crate::tools::IntoIteratorOfSameType;
+use crate::tools::{joined, IntoIteratorOfSameType};
 
 use super::join::Join;
 
@@ -36,7 +34,7 @@ impl Display for FromItem {
         write!(f, "{}", self.table_name)?;
 
         if self.has_joins() {
-            write!(f, " {}", self.joins.iter().join(" "))? // ha, I'm joining joins, get it?
+            write!(f, " {}", joined(&self.joins, " "))?;
         }
 
         Ok(())

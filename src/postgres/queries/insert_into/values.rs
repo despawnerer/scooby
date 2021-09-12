@@ -1,9 +1,7 @@
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
 use crate::postgres::general::{Column, Expression};
-use crate::tools::IntoNonZeroArray;
+use crate::tools::{joined, IntoNonZeroArray};
 
 /// Marker trait for implemenations of different kinds of `VALUES`
 /// clauses for `INSERT INTO` queries
@@ -56,10 +54,12 @@ impl<const N: usize> Display for WithoutColumns<N> {
         write!(
             f,
             "VALUES {}",
-            self.values
-                .iter()
-                .map(|cols| format!("({})", cols.iter().join(", ")))
-                .join(", ")
+            joined(
+                self.values
+                    .iter()
+                    .map(|cols| format!("({})", joined(cols, ", "))),
+                ", "
+            )
         )
     }
 }
@@ -94,11 +94,13 @@ impl<const N: usize> Display for WithColumns<N> {
         write!(
             f,
             "({}) VALUES {}",
-            self.columns.iter().join(", "),
-            self.values
-                .iter()
-                .map(|cols| format!("({})", cols.iter().join(", ")))
-                .join(", ")
+            joined(&self.columns, ", "),
+            joined(
+                self.values
+                    .iter()
+                    .map(|cols| format!("({})", joined(cols, ", "))),
+                ", "
+            )
         )
     }
 }

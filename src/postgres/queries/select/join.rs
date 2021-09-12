@@ -1,8 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use itertools::Itertools;
-
-use crate::tools::IntoIteratorOfSameType;
+use crate::tools::{joined, IntoIteratorOfSameType};
 
 use super::FromItem;
 
@@ -73,7 +71,7 @@ impl Display for JoinCondition {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         match self {
             JoinCondition::On(expr) => write!(f, "ON {}", expr),
-            JoinCondition::Using(columns) => write!(f, "USING ({})", columns.iter().join(", ")),
+            JoinCondition::Using(columns) => write!(f, "USING ({})", joined(columns, ", ")),
         }
     }
 }
