@@ -28,6 +28,11 @@ impl Parameters {
         Parameters { current: 1 }
     }
 
+    /// Make a new Parameters counter, starting with passed number
+    pub fn starting_from(first: usize) -> Parameters {
+        Parameters { current: first }
+    }
+
     /// Return the current parameter placeholder in `$x` format, and increase the internal counter
     pub fn next(&mut self) -> String {
         let s = format!("${}", self.current);
