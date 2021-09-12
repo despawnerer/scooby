@@ -10,19 +10,21 @@ Supports only PostgreSQL syntax at the moment.
 
 Requires Rust 1.54.
 
+Consult [documentation](https://docs.rs/scooby) for details and examples.
+
 Principles
 ----------
 
 - Single responsibility: _builds SQL queries_. Everything else is out of scope.
-- API designed to look as _close to actual SQL_ as possible, while being a tiny bit more flexible.
+- API designed to look _as close to actual SQL as possible_, while being a tiny bit more flexible.
 - Everything is _raw SQL strings_. If you need to pass user input, please use parametrized queries.
-- Obvious _mistakes should be prevented_ at compile time, where possible.
+- Obvious _mistakes should be prevented at compile time_, where possible.
 - No external dependencies
 
 Supported statements, clauses and features
 ------------------------------------------
 
-1. `SELECT`
+1. [`SELECT`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.select.html)
     - `WITH`
     - `WHERE`
     - `GROUP BY`
@@ -40,26 +42,26 @@ Supported statements, clauses and features
         - `RIGHT JOIN` and `RIGHT OUTER JOIN`
         - `FULL JOIN` and `FULL OUTER JOIN`
 
-2. `INSERT INTO`
+2. [`INSERT INTO`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.insert_into.html)
     - `WITH`
     - `DEFAULT VALUES`
     - `VALUES` with compile-time checking that lengths of all values are the same as columns
     - `RETURNING`
 
-3. `DELETE FROM`
+3. [`DELETE FROM`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.delete_from.html)
     - `WITH`
     - `WHERE`
     - `RETURNING`
 
-4. `UPDATE`
+4. [`UPDATE`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.update.html)
     - `WITH`
     - `SET` with compile-time checking that you've actually set at least something
     - `WHERE`
     - `RETURNING`
 
-5. Convenient `x AS y` aliasing
+5. Convenient [`x AS y` aliasing](https://docs.rs/scooby/latest/scooby/postgres/trait.Aliasable.html#tymethod.as_)
 
-6. Convenient `$1`, `$2`... parameter placeholder builder
+6. Convenient `$1`, `$2`... [parameter placeholder builder](https://docs.rs/scooby/latest/scooby/postgres/tools/struct.Parameters.html)
 
 Examples
 --------
@@ -76,8 +78,8 @@ use scooby::postgres::{select, Aliasable, Joinable, Orderable};
 //     Country AS country
 //     INNER JOIN City AS city ON city.country_id = country.id
 // WHERE
-//     city.population > 1000000
-// GROUP BY country.id
+//     city.population > $1
+// GROUP BY country.name
 // ORDER BY count DESC
 // LIMIT 10
 select(("country.name".as_("name"), "COUNT(*)".as_("count")))
@@ -87,8 +89,8 @@ select(("country.name".as_("name"), "COUNT(*)".as_("count")))
             .inner_join("City".as_("city"))
             .on("city.country_id = country.id"),
     )
-    .where_("city.population > 1000000")
-    .group_by("country.id")
+    .where_("city.population > $1")
+    .group_by("country.name")
     .order_by("count".desc())
     .limit(10)
     .to_string();
@@ -116,8 +118,8 @@ insert_into("Dummy").default_values().to_string();
 ```rust
 use scooby::postgres::delete_from;
 
-// DELETE FROM Dummy WHERE x > 0 AND y > 30
-delete_from("Dummy").where_(("x > 0", "y > 30")).to_string();
+// DELETE FROM Dummy WHERE x > $1 AND y > $2
+delete_from("Dummy").where_(("x > $1", "y > $2")).to_string();
 ```
 
 ### `WITH` (CTE — Common Table Expression)
@@ -174,11 +176,12 @@ use scooby::postgres::{select, Parameters};
 
 let mut params = Parameters::new();
 
-// SELECT id FROM Thing WHERE x > $1 AND y < $2
+// SELECT id FROM Thing WHERE x > $1 AND y < $2 AND z IN ($3, $4, $5)
 select("id")
     .from("Thing")
     .where_(format!("x > {}", params.next()))
     .where_(format!("y < {}", params.next()))
+    .where_(format!("z IN ({})", params.next_n(3)))
     .to_string();
 ```
 
