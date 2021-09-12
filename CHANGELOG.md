@@ -2,6 +2,10 @@
 
 next
 ----
+
+0.4.0
+-----
+
 - Add `Parameters::next_array` function returning placeholder as an array, intended to be used with INSERT INTO queries
 - Rename `WithClause::and` to `and_with` for clarity
 - Disallow passing `Select` queries directly into `Select::from()` without aliasing them first because PostgreSQL requires it
