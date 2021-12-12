@@ -66,8 +66,8 @@ pub(crate) fn update_with(table_name: TableName, with: WithClause) -> BareUpdate
 /// Bare `UPDATE` statement without a `SET` clause specified
 ///
 /// You will want to use the [`set`][BareUpdate::set] method add a `SET` clause
-/// with a column + expression pair and turn this into a usable query.
-#[must_use = "Making an UPDATE query with no values set is pointless"]
+/// with a column + expression pair and turn this into a usable statement.
+#[must_use = "Making an UPDATE statement with no values set is pointless"]
 #[derive(Debug)]
 pub struct BareUpdate {
     table_name: TableName,
@@ -100,7 +100,7 @@ impl BareUpdate {
 /// Finalize and turn into `String` by calling `to_string`.
 ///
 /// See [`update`] docs for more details and examples.
-#[must_use = "Making an UPDATE query without using it is pointless"]
+#[must_use = "Making an UPDATE statement without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct Update {
     table_name: TableName,

@@ -1,4 +1,4 @@
-//! Specific query related functions, types and traits.
+//! Specific statement related functions, types and traits.
 //!
 //! Most likely you want documentation for the [main module][`crate::postgres`].
 

@@ -15,9 +15,9 @@
 //!
 //! # Tools
 //!
-//! | Tool           | Description                               |
-//! |----------------|-------------------------------------------|
-//! | [`Parameters`] | Generator of query parameter placeholders |
+//! | Tool           | Description                                   |
+//! |----------------|-----------------------------------------------|
+//! | [`Parameters`] | Generator of statement parameter placeholders |
 //!
 pub mod general;
 pub mod statements;

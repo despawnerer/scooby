@@ -72,12 +72,12 @@ pub(crate) fn insert_into_with(table_name: TableName, with: WithClause) -> BareI
 
 /// Bare `INSERT INTO` statement without a valid `VALUES` clause specified
 ///
-/// You will want to make use of three methods to convert this into a usable query:
+/// You will want to make use of three methods to convert this into a usable statement:
 ///
 /// - [`default_values`][BareInsertInto::default_values] to add a `DEFAULT VALUES` clause
 /// - [`values`][BareInsertInto::values] to add `VALUES (...)` clause with unspecified columns
 /// - [`columns`][BareInsertInto::columns] to start building a `(...) VALUES (...)` clause with specific columns
-#[must_use = "Making a bare INSERT INTO query is pointless"]
+#[must_use = "Making a bare INSERT INTO statement is pointless"]
 #[derive(Debug)]
 pub struct BareInsertInto {
     table_name: TableName,
@@ -149,7 +149,7 @@ impl BareInsertInto {
 /// Intermediate structure to ensure one cannot build an `INSERT INTO` statement with columns, but without values
 ///
 /// Use the only provided [`values`][InsertIntoColumnsBuilder::values] method to add at least one set of values.
-#[must_use = "Making a bare INSERT INTO query with columns is pointless"]
+#[must_use = "Making a bare INSERT INTO statement with columns is pointless"]
 #[derive(Debug)]
 pub struct InsertIntoColumnsBuilder<const N: usize> {
     table_name: TableName,
@@ -194,7 +194,7 @@ impl<const N: usize> InsertIntoColumnsBuilder<N> {
 /// Finalize and turn into `String` by calling `to_string`.
 ///
 /// See [`insert_into`] docs for more details and examples.
-#[must_use = "Making an INSERT INTO query without using it is pointless"]
+#[must_use = "Making an INSERT INTO statement without using it is pointless"]
 #[derive(Debug, Clone)]
 pub struct InsertInto<V: Values> {
     table_name: TableName,
