@@ -4,7 +4,7 @@ Scooby
 [![Latest Version](https://img.shields.io/crates/v/scooby.svg)](https://crates.io/crates/scooby)
 [![docs](https://docs.rs/scooby/badge.svg)](https://docs.rs/scooby)
 
-An SQL query builder with a pleasant fluent API closely imitating actual SQL. Meant to comfortably build dynamic queries with a little bit of safety checks sprinkled on top to ensure you don't forget important things like `ON` clauses. Does not do quoting, does not do validation.
+An SQL query builder with a pleasant fluent API closely imitating actual SQL. Meant to comfortably build dynamic statements with a little bit of safety checks sprinkled on top to ensure you don't forget important things like `ON` clauses. Does not do quoting, does not do validation.
 
 Supports only PostgreSQL syntax at the moment.
 
@@ -15,16 +15,16 @@ Consult [documentation](https://docs.rs/scooby) for details and examples.
 Principles
 ----------
 
-- Single responsibility: _builds SQL queries_. Everything else is out of scope.
+- Single responsibility: _builds SQL statements_. Everything else is out of scope.
 - API designed to look _as close to actual SQL as possible_, while being a tiny bit more flexible.
-- Everything is _raw SQL strings_. If you need to pass user input, please use parametrized queries.
+- Everything is _raw SQL strings_. If you need to pass user input, please use parametrized statements.
 - Obvious _mistakes should be prevented at compile time_, where possible.
 - No external dependencies
 
 Supported statements, clauses and features
 ------------------------------------------
 
-1. [`SELECT`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.select.html)
+1. [`SELECT`](https://docs.rs/scooby/latest/scooby/postgres/statements/fn.select.html)
     - `WITH`
     - `WHERE`
     - `GROUP BY`
@@ -42,18 +42,18 @@ Supported statements, clauses and features
         - `RIGHT JOIN` and `RIGHT OUTER JOIN`
         - `FULL JOIN` and `FULL OUTER JOIN`
 
-2. [`INSERT INTO`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.insert_into.html)
+2. [`INSERT INTO`](https://docs.rs/scooby/latest/scooby/postgres/statements/fn.insert_into.html)
     - `WITH`
     - `DEFAULT VALUES`
     - `VALUES` with compile-time checking that lengths of all values are the same as columns
     - `RETURNING`
 
-3. [`DELETE FROM`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.delete_from.html)
+3. [`DELETE FROM`](https://docs.rs/scooby/latest/scooby/postgres/statements/fn.delete_from.html)
     - `WITH`
     - `WHERE`
     - `RETURNING`
 
-4. [`UPDATE`](https://docs.rs/scooby/latest/scooby/postgres/queries/fn.update.html)
+4. [`UPDATE`](https://docs.rs/scooby/latest/scooby/postgres/statements/fn.update.html)
     - `WITH`
     - `SET` with compile-time checking that you've actually set at least something
     - `WHERE`

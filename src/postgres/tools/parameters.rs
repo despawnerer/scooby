@@ -1,6 +1,6 @@
 use crate::tools::{build_array, joined};
 
-/// Generator of PostgreSQL parameter placeholders for dynamic queries with multiple values
+/// Generator of PostgreSQL parameter placeholders for dynamic statements with multiple values
 ///
 /// # Example
 ///

@@ -3,6 +3,8 @@
 next
 ----
 
+- Rename `queries` module into `statements`, and use that terminology everywhere
+
 0.4.0
 -----
 

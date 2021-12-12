@@ -19,11 +19,11 @@
 //! | [`Parameters`] | Generator of query parameter placeholders |
 //!
 pub mod general;
-pub mod queries;
+pub mod statements;
 pub mod tools;
 
 pub use general::{with, Aliasable};
-pub use queries::{
+pub use statements::{
     delete_from, insert_into, select, update, DeleteFrom, InsertInto, Joinable, Orderable, Select,
     Update,
 };

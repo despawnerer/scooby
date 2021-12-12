@@ -2,7 +2,7 @@ use std::fmt::{self, Display, Formatter};
 
 use crate::{postgres::general::Expression, tools::joined};
 
-/// An `ALL` | `DISTINCT` | `DISTINCT ON (...)` clause for `SELECT` queries
+/// An `ALL` | `DISTINCT` | `DISTINCT ON (...)` clause for `SELECT` statements
 #[derive(Debug, Clone)]
 pub enum Distinct {
     All,

@@ -1,7 +1,7 @@
 use std::fmt::Display;
 
 use crate::postgres::general::{Expression, TableName};
-use crate::postgres::queries::{
+use crate::postgres::statements::{
     delete_from_with, insert_into_with, select_with, update_with, BareInsertInto, BareUpdate,
     DeleteFrom, InsertInto, Select, Update, Values,
 };
@@ -18,7 +18,7 @@ pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
     }
 }
 
-/// `WITH` clause usable with different types of queries
+/// `WITH` clause usable with different types of statements
 ///
 /// Use [`and`][WithClause::and] to add a table to the clause.
 ///

@@ -1,4 +1,4 @@
-//! Bits that are usable in different types of queries
+//! Bits that are usable in different types of statements
 
 mod alias;
 mod column;

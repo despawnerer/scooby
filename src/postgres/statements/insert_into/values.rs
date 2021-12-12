@@ -4,16 +4,16 @@ use crate::postgres::general::{Column, Expression};
 use crate::tools::{joined, IntoNonZeroArray};
 
 /// Marker trait for implemenations of different kinds of `VALUES`
-/// clauses for `INSERT INTO` queries
+/// clauses for `INSERT INTO` statements
 ///
 /// You may not construct any of the implementations directly.
 ///
-/// Please use the appropriate methods on [`BareInsertInto`][crate::postgres::queries::BareInsertInto]
+/// Please use the appropriate methods on [`BareInsertInto`][crate::postgres::statements::BareInsertInto]
 pub trait Values: Display {}
 
 /// Default values, i.e. `INSERT INTO x DEFAULT VALUES`
 ///
-/// Constructing this directly is useless, please use [`BareInsertInto::default_values`][crate::postgres::queries::BareInsertInto::default_values]
+/// Constructing this directly is useless, please use [`BareInsertInto::default_values`][crate::postgres::statements::BareInsertInto::default_values]
 #[derive(Debug)]
 pub struct DefaultValues;
 
@@ -27,7 +27,7 @@ impl Display for DefaultValues {
 
 /// Values without columns, i.e. `INSERT INTO x VALUES (1, 2)`
 ///
-/// You may not construct this directly, please use [`BareInsertInto::values`][crate::postgres::queries::BareInsertInto::values]
+/// You may not construct this directly, please use [`BareInsertInto::values`][crate::postgres::statements::BareInsertInto::values]
 #[derive(Debug)]
 pub struct WithoutColumns<const N: usize> {
     values: Vec<[Expression; N]>,
@@ -66,7 +66,7 @@ impl<const N: usize> Display for WithoutColumns<N> {
 
 /// Values with specified columns, i.e. `INSERT INTO x (col1, col2) VALUES (1, 2)`
 ///
-/// You may not construct this directly, please use [`BareInsertInto::columns`][crate::postgres::queries::BareInsertInto::columns]
+/// You may not construct this directly, please use [`BareInsertInto::columns`][crate::postgres::statements::BareInsertInto::columns]
 #[derive(Debug)]
 pub struct WithColumns<const N: usize> {
     columns: [Column; N],

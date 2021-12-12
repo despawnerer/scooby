@@ -4,7 +4,7 @@ use std::iter::{once, Once};
 use crate::postgres::general::SortExpression;
 use crate::tools::IntoIteratorOfSameType;
 
-/// `ORDER BY` clause for `SELECT` queries
+/// `ORDER BY` clause for `SELECT` statements
 ///
 /// See [`Orderable`] trait for details
 #[derive(Debug, Clone)]
