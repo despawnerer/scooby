@@ -5,7 +5,7 @@ next
 
 - Support arbitrary expressions in `LIMIT` and `OFFSET` clauses, as well as numbers, allowing using parameter placeholders
 - Rename `queries` module into `statements`, and use that terminology everywhere
-- Add a new convenience function called `from` to create `SELECT` statements by starting from the `FROM` clause
+- Add a new convenience function called `from` to create `SELECT` statements by starting from the `FROM` clause (e.g. `from("Things").select(("id", "name"))`)
 - Fix a broken link in `WithClause` documentation
 
 0.4.0
