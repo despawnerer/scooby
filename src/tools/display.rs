@@ -42,8 +42,8 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::iter::{once, empty, successors};
     use super::*;
+    use std::iter::{empty, once, successors};
 
     #[test]
     fn no_items() {
@@ -66,6 +66,9 @@ mod tests {
     #[test]
     fn a_few_items() {
         let iter = successors(Some(0), |x| Some(x + 1)).take(10);
-        assert_eq!(joined(iter, ", ").to_string(), "0, 1, 2, 3, 4, 5, 6, 7, 8, 9");
+        assert_eq!(
+            joined(iter, ", ").to_string(),
+            "0, 1, 2, 3, 4, 5, 6, 7, 8, 9"
+        );
     }
 }
