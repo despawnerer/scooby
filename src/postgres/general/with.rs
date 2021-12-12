@@ -20,7 +20,7 @@ pub fn with(name: impl Into<TableName>) -> WithQueryBuilder {
 
 /// `WITH` clause usable with different types of statements
 ///
-/// Use [`and`][WithClause::and] to add a table to the clause.
+/// Use [`and_with`][WithClause::and_with] to add a table to the clause.
 ///
 /// Use one of four finalizing methods to start building the actual statement with this clause:
 ///
