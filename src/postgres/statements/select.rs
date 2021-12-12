@@ -71,7 +71,6 @@ pub use order_by::{OrderBy, Orderable};
 ///
 /// assert_eq!(sql, "SELECT country.name AS name, COUNT(*) AS count FROM Country AS country INNER JOIN City AS city ON city.country_id = country.id WHERE city.population > 1000000 GROUP BY country.name ORDER BY count DESC LIMIT 10");
 /// ```
-
 pub fn select(expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
     Select {
         expressions: expressions.into_some_iter().collect(),
@@ -84,6 +83,26 @@ pub(crate) fn select_with(expressions: Vec<Expression>, with_clause: WithClause)
         expressions,
         with: Some(with_clause),
         ..Default::default()
+    }
+}
+
+/// An alternative way to create `SELECT` statements, starting from the `FROM` clause for convenience.
+///
+/// Returns a [`FromSelectBuilder`] structure, which expects you to specify expressions for the actual `SELECT` clause
+/// by calling its `select` method
+///
+/// # Examples
+///
+/// ```
+/// use scooby::postgres::from;
+///
+/// let sql = from("Points").select(("x", "y")).where_("x > 1").to_string();
+///
+/// assert_eq!(sql, "SELECT x, y FROM Points WHERE x > 1");
+/// ```
+pub fn from(from: impl IntoIteratorOfSameType<FromItem>) -> FromSelectBuilder {
+    FromSelectBuilder {
+        from: from.into_some_iter().collect(),
     }
 }
 
@@ -355,10 +374,38 @@ impl Display for Select {
     }
 }
 
+/// Intermediate structure to build a `SELECT` statement starting from a `FROM` clause
+///
+/// Use the only provided [`select`][FromSelectBuilder::select] method to add a `SELECT` clause
+#[must_use = "Making a FromSelectBuilder struct without using it is pointless"]
+#[derive(Debug)]
+pub struct FromSelectBuilder {
+    from: Vec<FromItem>,
+}
+
+impl FromSelectBuilder {
+    /// Specify expressions to be selected, turning this into a [`Select`] structure.
+    ///
+    /// ```
+    /// use scooby::postgres::from;
+    ///
+    /// let sql = from("Points").select(("x", "y")).to_string();
+    ///
+    /// assert_eq!(sql, "SELECT x, y FROM Points");
+    /// ```
+    pub fn select(self, expressions: impl IntoIteratorOfSameType<Expression>) -> Select {
+        Select {
+            expressions: expressions.into_some_iter().collect(),
+            from: self.from,
+            ..Default::default()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::postgres::tools::tests::assert_correct_postgresql;
-    use crate::postgres::{select, with, Aliasable, Joinable, Orderable};
+    use crate::postgres::{from, select, with, Aliasable, Joinable, Orderable};
 
     #[test]
     fn bare() {
@@ -694,5 +741,12 @@ mod tests {
             .to_string();
 
         assert_correct_postgresql(&sql, "SELECT country.name AS name, COUNT(*) AS count FROM Country AS country INNER JOIN City AS city ON city.country_id = country.id WHERE city.population > 1000000 GROUP BY country.name ORDER BY count DESC LIMIT 10");
+    }
+
+    #[test]
+    fn starting_with_from() {
+        let sql = from("Points").select(("x", "y")).to_string();
+
+        assert_correct_postgresql(&sql, "SELECT x, y FROM Points");
     }
 }

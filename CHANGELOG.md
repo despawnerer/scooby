@@ -4,6 +4,7 @@ next
 ----
 
 - Rename `queries` module into `statements`, and use that terminology everywhere
+- Add a new convenience function called `from` to create `SELECT` statements by starting from the `FROM` clause
 
 0.4.0
 -----
