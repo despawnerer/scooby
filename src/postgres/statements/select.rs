@@ -1,6 +1,8 @@
 mod distinct;
 mod from_item;
 mod join;
+mod limit;
+mod offset;
 mod order_by;
 
 use std::default::Default;
@@ -12,6 +14,8 @@ use crate::tools::{joined, IntoIteratorOfSameType};
 pub use distinct::Distinct;
 pub use from_item::FromItem;
 pub use join::Joinable;
+pub use limit::Limit;
+pub use offset::Offset;
 pub use order_by::{OrderBy, Orderable};
 
 /// Create a new `SELECT` statement with given expressions.
@@ -121,8 +125,8 @@ pub struct Select {
     group_by: Vec<Expression>,
     having: Vec<Condition>,
     order_by: Vec<OrderBy>,
-    limit: Option<u64>,
-    offset: Option<u64>,
+    limit: Option<Limit>,
+    offset: Option<Offset>,
     distinct: Option<Distinct>,
 }
 
@@ -308,8 +312,8 @@ impl Select {
     /// let sql = select("*").from("City").limit(10).to_string();
     /// assert_eq!(sql, "SELECT * FROM City LIMIT 10");
     /// ```
-    pub fn limit(mut self, n: u64) -> Self {
-        self.limit = Some(n);
+    pub fn limit(mut self, limit: impl Into<Limit>) -> Self {
+        self.limit = Some(limit.into());
         self
     }
 
@@ -320,8 +324,8 @@ impl Select {
     /// let sql = select("*").from("City").offset(10).to_string();
     /// assert_eq!(sql, "SELECT * FROM City OFFSET 10");
     /// ```
-    pub fn offset(mut self, n: u64) -> Self {
-        self.offset = Some(n);
+    pub fn offset(mut self, offset: impl Into<Offset>) -> Self {
+        self.offset = Some(offset.into());
         self
     }
 }
@@ -362,11 +366,11 @@ impl Display for Select {
             write!(f, " ORDER BY {}", joined(&self.order_by, ", "))?;
         }
 
-        if let Some(limit) = self.limit {
+        if let Some(ref limit) = self.limit {
             write!(f, " LIMIT {}", limit)?;
         }
 
-        if let Some(offset) = self.offset {
+        if let Some(ref offset) = self.offset {
             write!(f, " OFFSET {}", offset)?;
         }
 
@@ -748,5 +752,19 @@ mod tests {
         let sql = from("Points").select(("x", "y")).to_string();
 
         assert_correct_postgresql(&sql, "SELECT x, y FROM Points");
+    }
+
+    #[test]
+    fn limit_with_parameter() {
+        let sql = select("1 + 1").limit("$1").to_string();
+
+        assert_correct_postgresql(&sql, "SELECT 1 + 1 LIMIT $1");
+    }
+
+    #[test]
+    fn offset_with_parameters() {
+        let sql = select("1 + 1").offset("$1").to_string();
+
+        assert_correct_postgresql(&sql, "SELECT 1 + 1 OFFSET $1");
     }
 }
