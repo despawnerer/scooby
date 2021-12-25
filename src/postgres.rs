@@ -4,14 +4,15 @@
 //!
 //! See each function's docs for details on supported clauses and features.
 //!
-//! | Entry function  | SQL statement                          |
-//! |-----------------|----------------------------------------|
-//! | [`select`]      | `SELECT`                               |
-//! | [`from`]        | `SELECT` (starting from `FROM` clause) |
-//! | [`insert_into`] | `INSERT INTO`                          |
-//! | [`delete_from`] | `DELETE FROM`                          |
-//! | [`update`]      | `UPDATE`                               |
-//! | [`with`]        | `WITH`                                 |
+//! | Entry function   | SQL statement                          |
+//! |------------------|----------------------------------------|
+//! | [`select`]       | `SELECT`                               |
+//! | [`from`]         | `SELECT` (starting from `FROM` clause) |
+//! | [`insert_into`]  | `INSERT INTO`                          |
+//! | [`delete_from`]  | `DELETE FROM`                          |
+//! | [`update`]       | `UPDATE`                               |
+//! | [`with`]         | `WITH`                                 |
+//! | [`create_table`] | `CREATE TABLE`                         |
 //!
 //! # Tools
 //!
@@ -25,7 +26,7 @@ pub mod tools;
 
 pub use general::{with, Aliasable};
 pub use statements::{
-    delete_from, from, insert_into, select, update, DeleteFrom, FromSelectBuilder, InsertInto,
-    Joinable, Orderable, Select, Update,
+    create_table, delete_from, from, insert_into, select, update, ColumnDefinitionable,
+    CreateTable, DeleteFrom, FromSelectBuilder, InsertInto, Joinable, Orderable, Select, Update,
 };
 pub use tools::Parameters;

@@ -2,11 +2,16 @@
 //!
 //! Most likely you want documentation for the [main module][`crate::postgres`].
 
+mod create_table;
 mod delete_from;
 mod insert_into;
 mod select;
 mod update;
 
+pub use create_table::{
+    create_table, ColumnDefinition, ColumnDefinitionBuilder, ColumnDefinitionable, CreateTable,
+    CreateTableBuilder,
+};
 pub use delete_from::{delete_from, DeleteFrom};
 pub use insert_into::{insert_into, BareInsertInto, InsertInto, InsertIntoColumnsBuilder, Values};
 pub use select::{from, select, FromItem, FromSelectBuilder, Joinable, OrderBy, Orderable, Select};
