@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::postgres::general::{Column, Expression, TableName, Condition};
+use crate::postgres::general::{Column, Condition, Expression, TableName};
 use crate::tools::joined;
 
 use super::column_constraints::*;
@@ -155,7 +155,7 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
-                        check: self.check,
+            check: self.check,
         }
     }
 }
@@ -177,7 +177,7 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
-                        check: self.check,
+            check: self.check,
         }
     }
 }
@@ -188,7 +188,7 @@ where
     P: PrimaryKeyConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
-    C: CheckConstraint
+    C: CheckConstraint,
 {
     pub fn unique(self) -> ColumnDefinitionBuilder<N, P, IsUnique, D, R, C> {
         ColumnDefinitionBuilder {
@@ -199,7 +199,7 @@ where
             unique: IsUnique,
             default: self.default,
             references: self.references,
-                        check: self.check,
+            check: self.check,
         }
     }
 }
@@ -210,7 +210,7 @@ where
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     R: ReferencesConstraint,
-    C: CheckConstraint
+    C: CheckConstraint,
 {
     pub fn default(
         self,
@@ -224,7 +224,7 @@ where
             unique: self.unique,
             default: HasDefault(expr.into()),
             references: self.references,
-                        check: self.check,
+            check: self.check,
         }
     }
 }
@@ -235,7 +235,7 @@ where
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
-    C: CheckConstraint
+    C: CheckConstraint,
 {
     pub fn references(
         self,
@@ -250,11 +250,10 @@ where
             unique: self.unique,
             default: self.default,
             references: References(table_name.into(), column.into()),
-                        check: self.check,
+            check: self.check,
         }
     }
 }
-
 
 impl<N, P, U, D, R> ColumnDefinitionBuilder<N, P, U, D, R, NoConstraint>
 where
@@ -266,7 +265,7 @@ where
 {
     pub fn check(
         self,
-        cond: impl Into<Condition>
+        cond: impl Into<Condition>,
     ) -> ColumnDefinitionBuilder<N, P, U, D, R, Check> {
         ColumnDefinitionBuilder {
             name: self.name,
@@ -276,11 +275,10 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
-                        check: Check(cond.into()),
+            check: Check(cond.into()),
         }
     }
 }
-
 
 impl<T, U> From<(T, U)> for ColumnDefinitionBuilder
 where
@@ -306,7 +304,17 @@ pub trait ColumnDefinitionable: Into<ColumnDefinitionBuilder> {
         table_name: impl Into<TableName>,
         column: impl Into<Column>,
     ) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, References>;
-    fn check(self, cond: impl Into<Condition>) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, NoConstraint, Check>;
+    fn check(
+        self,
+        cond: impl Into<Condition>,
+    ) -> ColumnDefinitionBuilder<
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        Check,
+    >;
 }
 
 impl<T, U> ColumnDefinitionable for (T, U)
@@ -349,7 +357,14 @@ where
     fn check(
         self,
         expr: impl Into<Condition>,
-    ) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, NoConstraint, Check> {
+    ) -> ColumnDefinitionBuilder<
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        NoConstraint,
+        Check,
+    > {
         ColumnDefinitionBuilder::from(self).check(expr)
     }
 }

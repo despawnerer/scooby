@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::postgres::general::{Column, Expression, TableName, Condition};
+use crate::postgres::general::{Column, Condition, Expression, TableName};
 
 #[derive(Debug, Clone)]
 pub enum ColumnConstraint {
@@ -27,7 +27,7 @@ impl Display for ColumnConstraint {
             Self::Default(expr) => write!(f, "DEFAULT {}", expr),
             Self::References(table_name, column) => {
                 write!(f, "REFERENCES {}({})", table_name, column)
-            },
+            }
             Self::Check(cond) => write!(f, "CHECK ({})", cond),
         }
     }
