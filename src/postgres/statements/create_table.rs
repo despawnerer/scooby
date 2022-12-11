@@ -1,12 +1,16 @@
 mod column_constraints;
 mod column_definition;
+mod table_constraints;
 
 use std::fmt::{self, Display, Formatter};
 
+use crate::postgres::general::Column;
 use crate::tools::IntoIteratorOfSameType;
 use crate::{postgres::general::TableName, tools::joined};
 
 pub use column_definition::{ColumnDefinition, ColumnDefinitionBuilder, ColumnDefinitionable};
+
+use self::table_constraints::TableConstraint;
 
 pub fn create_table(table_name: impl Into<TableName>) -> CreateTableBuilder {
     CreateTableBuilder {
@@ -23,6 +27,7 @@ impl CreateTableBuilder {
         CreateTable {
             name: self.table_name,
             columns: columns.into_some_iter().collect(),
+            constraints: Vec::new(),
         }
     }
 }
@@ -31,16 +36,31 @@ impl CreateTableBuilder {
 pub struct CreateTable {
     name: TableName,
     columns: Vec<ColumnDefinition>,
+    constraints: Vec<TableConstraint>,
 }
 
 impl Display for CreateTable {
     fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "CREATE TABLE {} ({})",
+            "CREATE TABLE {} ({}",
             self.name,
             joined(&self.columns, ", ")
-        )
+        )?;
+
+        if self.constraints.len() > 0 {
+            write!(f, ", {}", joined(&self.constraints, ", "))?;
+        }
+
+        write!(f, ")")
+    }
+}
+
+impl CreateTable {
+    pub fn unique(mut self, columns: impl IntoIteratorOfSameType<Column>) -> Self {
+        self.constraints
+            .push(TableConstraint::Unique(columns.into_some_iter().collect()));
+        self
     }
 }
 
@@ -62,8 +82,9 @@ mod tests {
                 ("kind", "varchar(10)"),
                 ("len", "interval hour to minute").default("0"),
             ))
+            .unique("code")
             .to_string();
 
-        assert_correct_postgresql(&sql, "CREATE TABLE Film (code char(5) PRIMARY KEY, imdb_id char(40) UNIQUE, title varchar(40) NOT NULL, did integer NOT NULL, director_id integer REFERENCES Person(id), date_prod date CHECK (date_prod < today()), kind varchar(10), len interval hour to minute DEFAULT 0)");
+        assert_correct_postgresql(&sql, "CREATE TABLE Film (code char(5) PRIMARY KEY, imdb_id char(40) UNIQUE, title varchar(40) NOT NULL, did integer NOT NULL, director_id integer REFERENCES Person(id), date_prod date CHECK (date_prod < today()), kind varchar(10), len interval hour to minute DEFAULT 0, UNIQUE (code))");
     }
 }
