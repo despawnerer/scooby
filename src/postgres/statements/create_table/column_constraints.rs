@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::postgres::general::{Column, Expression, TableName};
+use crate::postgres::general::{Column, Expression, TableName, Condition};
 
 #[derive(Debug, Clone)]
 pub enum ColumnConstraint {
@@ -10,6 +10,7 @@ pub enum ColumnConstraint {
     Unique,
     Default(Expression),
     References(TableName, Column),
+    Check(Condition),
 }
 
 pub trait IntoColumnConstraint {
@@ -26,7 +27,8 @@ impl Display for ColumnConstraint {
             Self::Default(expr) => write!(f, "DEFAULT {}", expr),
             Self::References(table_name, column) => {
                 write!(f, "REFERENCES {}({})", table_name, column)
-            }
+            },
+            Self::Check(cond) => write!(f, "CHECK ({})", cond),
         }
     }
 }
@@ -132,5 +134,21 @@ impl ReferencesConstraint for NoConstraint {}
 impl IntoColumnConstraint for References {
     fn into_column_constraint(self) -> Option<ColumnConstraint> {
         Some(ColumnConstraint::References(self.0, self.1))
+    }
+}
+
+/* Check */
+
+pub trait CheckConstraint: IntoColumnConstraint {}
+
+#[derive(Debug)]
+pub struct Check(pub(crate) Condition);
+
+impl CheckConstraint for Check {}
+impl CheckConstraint for NoConstraint {}
+
+impl IntoColumnConstraint for Check {
+    fn into_column_constraint(self) -> Option<ColumnConstraint> {
+        Some(ColumnConstraint::Check(self.0))
     }
 }

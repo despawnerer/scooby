@@ -1,6 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
-use crate::postgres::general::{Column, Expression, TableName};
+use crate::postgres::general::{Column, Expression, TableName, Condition};
 use crate::tools::joined;
 
 use super::column_constraints::*;
@@ -24,19 +24,20 @@ impl Display for ColumnDefinition {
     }
 }
 
-impl<N, P, U, D, R> From<ColumnDefinitionBuilder<N, P, U, D, R>> for ColumnDefinition
+impl<N, P, U, D, R, C> From<ColumnDefinitionBuilder<N, P, U, D, R, C>> for ColumnDefinition
 where
     N: NullabilityConstraint,
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint,
 {
-    fn from(builder: ColumnDefinitionBuilder<N, P, U, D, R>) -> Self {
+    fn from(builder: ColumnDefinitionBuilder<N, P, U, D, R, C>) -> Self {
         let mut constraints = Vec::new();
 
         if let Some(constraint) = builder.nullability.into_column_constraint() {
-            constraints.push(constraint)
+            constraints.push(constraint);
         }
 
         if let Some(constraint) = builder.primary_key.into_column_constraint() {
@@ -52,7 +53,11 @@ where
         }
 
         if let Some(constraint) = builder.references.into_column_constraint() {
-            constraints.push(constraint)
+            constraints.push(constraint);
+        }
+
+        if let Some(constraint) = builder.check.into_column_constraint() {
+            constraints.push(constraint);
         }
 
         ColumnDefinition {
@@ -86,12 +91,14 @@ pub struct ColumnDefinitionBuilder<
     U = NoConstraint,
     D = NoConstraint,
     R = NoConstraint,
+    C = NoConstraint,
 > where
     N: NullabilityConstraint,
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint,
 {
     name: String,
     type_: String,
@@ -100,6 +107,7 @@ pub struct ColumnDefinitionBuilder<
     unique: U,
     default: D,
     references: R,
+    check: C,
 }
 
 impl ColumnDefinitionBuilder {
@@ -112,18 +120,20 @@ impl ColumnDefinitionBuilder {
             unique: NoConstraint,
             default: NoConstraint,
             references: NoConstraint,
+            check: NoConstraint,
         }
     }
 }
 
-impl<P, U, D, R> ColumnDefinitionBuilder<NoConstraint, P, U, D, R>
+impl<P, U, D, R, C> ColumnDefinitionBuilder<NoConstraint, P, U, D, R, C>
 where
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint,
 {
-    pub fn null(self) -> ColumnDefinitionBuilder<IsNull, P, U, D, R> {
+    pub fn null(self) -> ColumnDefinitionBuilder<IsNull, P, U, D, R, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -132,10 +142,11 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
+            check: self.check,
         }
     }
 
-    pub fn not_null(self) -> ColumnDefinitionBuilder<IsNotNull, P, U, D, R> {
+    pub fn not_null(self) -> ColumnDefinitionBuilder<IsNotNull, P, U, D, R, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -144,18 +155,20 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
+                        check: self.check,
         }
     }
 }
 
-impl<N, U, D, R> ColumnDefinitionBuilder<N, NoConstraint, U, D, R>
+impl<N, U, D, R, C> ColumnDefinitionBuilder<N, NoConstraint, U, D, R, C>
 where
     N: NullabilityConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint,
 {
-    pub fn primary_key(self) -> ColumnDefinitionBuilder<N, IsPrimaryKey, U, D, R> {
+    pub fn primary_key(self) -> ColumnDefinitionBuilder<N, IsPrimaryKey, U, D, R, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -164,18 +177,20 @@ where
             unique: self.unique,
             default: self.default,
             references: self.references,
+                        check: self.check,
         }
     }
 }
 
-impl<N, P, D, R> ColumnDefinitionBuilder<N, P, NoConstraint, D, R>
+impl<N, P, D, R, C> ColumnDefinitionBuilder<N, P, NoConstraint, D, R, C>
 where
     N: NullabilityConstraint,
     P: PrimaryKeyConstraint,
     D: DefaultConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint
 {
-    pub fn unique(self) -> ColumnDefinitionBuilder<N, P, IsUnique, D, R> {
+    pub fn unique(self) -> ColumnDefinitionBuilder<N, P, IsUnique, D, R, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -184,21 +199,23 @@ where
             unique: IsUnique,
             default: self.default,
             references: self.references,
+                        check: self.check,
         }
     }
 }
 
-impl<N, P, U, R> ColumnDefinitionBuilder<N, P, U, NoConstraint, R>
+impl<N, P, U, R, C> ColumnDefinitionBuilder<N, P, U, NoConstraint, R, C>
 where
     N: NullabilityConstraint,
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     R: ReferencesConstraint,
+    C: CheckConstraint
 {
     pub fn default(
         self,
         expr: impl Into<Expression>,
-    ) -> ColumnDefinitionBuilder<N, P, U, HasDefault, R> {
+    ) -> ColumnDefinitionBuilder<N, P, U, HasDefault, R, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -207,22 +224,24 @@ where
             unique: self.unique,
             default: HasDefault(expr.into()),
             references: self.references,
+                        check: self.check,
         }
     }
 }
 
-impl<N, P, U, D> ColumnDefinitionBuilder<N, P, U, D, NoConstraint>
+impl<N, P, U, D, C> ColumnDefinitionBuilder<N, P, U, D, NoConstraint, C>
 where
     N: NullabilityConstraint,
     P: PrimaryKeyConstraint,
     U: UniqueConstraint,
     D: DefaultConstraint,
+    C: CheckConstraint
 {
     pub fn references(
         self,
         table_name: impl Into<TableName>,
         column: impl Into<Column>,
-    ) -> ColumnDefinitionBuilder<N, P, U, D, References> {
+    ) -> ColumnDefinitionBuilder<N, P, U, D, References, C> {
         ColumnDefinitionBuilder {
             name: self.name,
             type_: self.type_,
@@ -231,9 +250,37 @@ where
             unique: self.unique,
             default: self.default,
             references: References(table_name.into(), column.into()),
+                        check: self.check,
         }
     }
 }
+
+
+impl<N, P, U, D, R> ColumnDefinitionBuilder<N, P, U, D, R, NoConstraint>
+where
+    N: NullabilityConstraint,
+    P: PrimaryKeyConstraint,
+    U: UniqueConstraint,
+    D: DefaultConstraint,
+    R: ReferencesConstraint,
+{
+    pub fn check(
+        self,
+        cond: impl Into<Condition>
+    ) -> ColumnDefinitionBuilder<N, P, U, D, R, Check> {
+        ColumnDefinitionBuilder {
+            name: self.name,
+            type_: self.type_,
+            nullability: self.nullability,
+            primary_key: self.primary_key,
+            unique: self.unique,
+            default: self.default,
+            references: self.references,
+                        check: Check(cond.into()),
+        }
+    }
+}
+
 
 impl<T, U> From<(T, U)> for ColumnDefinitionBuilder
 where
@@ -259,6 +306,7 @@ pub trait ColumnDefinitionable: Into<ColumnDefinitionBuilder> {
         table_name: impl Into<TableName>,
         column: impl Into<Column>,
     ) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, References>;
+    fn check(self, cond: impl Into<Condition>) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, NoConstraint, Check>;
 }
 
 impl<T, U> ColumnDefinitionable for (T, U)
@@ -296,5 +344,12 @@ where
     ) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, References>
     {
         ColumnDefinitionBuilder::from(self).references(table_name, column)
+    }
+
+    fn check(
+        self,
+        expr: impl Into<Condition>,
+    ) -> ColumnDefinitionBuilder<NoConstraint, NoConstraint, NoConstraint, NoConstraint, NoConstraint, Check> {
+        ColumnDefinitionBuilder::from(self).check(expr)
     }
 }

@@ -58,12 +58,12 @@ mod tests {
                 ("title", "varchar(40)").not_null(),
                 ("did", "integer").not_null(),
                 ("director_id", "integer").references("Person", "id"),
-                ("date_prod", "date"),
+                ("date_prod", "date").check("date_prod < today()"),
                 ("kind", "varchar(10)"),
                 ("len", "interval hour to minute").default("0"),
             ))
             .to_string();
 
-        assert_correct_postgresql(&sql, "CREATE TABLE Film (code char(5) PRIMARY KEY, imdb_id char(40) UNIQUE, title varchar(40) NOT NULL, did integer NOT NULL, director_id integer REFERENCES Person(id), date_prod date, kind varchar(10), len interval hour to minute DEFAULT 0)");
+        assert_correct_postgresql(&sql, "CREATE TABLE Film (code char(5) PRIMARY KEY, imdb_id char(40) UNIQUE, title varchar(40) NOT NULL, did integer NOT NULL, director_id integer REFERENCES Person(id), date_prod date CHECK (date_prod < today()), kind varchar(10), len interval hour to minute DEFAULT 0)");
     }
 }
