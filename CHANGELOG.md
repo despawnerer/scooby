@@ -3,6 +3,9 @@
 next
 ----
 
+0.5.0
+-----
+
 - Support arbitrary expressions in `LIMIT` and `OFFSET` clauses, as well as numbers, allowing using parameter placeholders
 - Add basic support for `ON CONFLICT` clauses in `INSERT INTO` statements: specifying which conflicts is not supported yet, but that's okay
 - Rename `queries` module into `statements`, and use that terminology everywhere
