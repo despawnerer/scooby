@@ -1,3 +1,4 @@
+mod on_conflict;
 mod values;
 
 use std::fmt::{self, Display, Formatter};
@@ -5,6 +6,7 @@ use std::fmt::{self, Display, Formatter};
 use crate::postgres::general::{Column, Expression, OutputExpression, TableName, WithClause};
 use crate::tools::{joined, IntoIteratorOfSameType, IntoNonZeroArray};
 
+pub use on_conflict::{OnConflictClause, OnConflictClauseBuilder};
 pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 
 /// Start building a new `INSERT INTO` statement with the given table name.
@@ -24,10 +26,11 @@ pub use values::{DefaultValues, Values, WithColumns, WithoutColumns};
 ///
 /// # Supported clauses
 ///
-/// | Clause      | Method                               |
-/// |-------------|--------------------------------------|
-/// | `VALUES`    | [`values`][InsertInto::values]       |
-/// | `RETURNING` | [`returning`][InsertInto::returning] |
+/// | Clause        | Method                                   |
+/// |---------------|------------------------------------------|
+/// | `VALUES`      | [`values`][InsertInto::values]           |
+/// | `ON CONFLICT` | [`on_conflict`][InsertInto::on_conflict] |
+/// | `RETURNING`   | [`returning`][InsertInto::returning]     |
 ///
 /// # Specifying a `WITH` clause
 ///
@@ -201,6 +204,7 @@ pub struct InsertInto<V: Values> {
     with: Option<WithClause>,
     values: V,
     returning: Vec<OutputExpression>,
+    on_conflict: Option<OnConflictClause>,
 }
 
 impl<V: Values> InsertInto<V> {
@@ -209,6 +213,7 @@ impl<V: Values> InsertInto<V> {
             table_name,
             with,
             values,
+            on_conflict: None,
             returning: Vec::new(),
         }
     }
@@ -229,6 +234,26 @@ impl<V: Values> InsertInto<V> {
     pub fn returning(mut self, expressions: impl IntoIteratorOfSameType<OutputExpression>) -> Self {
         self.returning.extend(expressions.into_some_iter());
         self
+    }
+
+    /// Add an `ON CONFLICT` clause to this statement.
+    ///
+    /// Returns a [`OnConflictClauseBuilder`] structure which requires you to specify
+    /// an action to do when a conflict happens using follow up methods.
+    ///
+    /// ```
+    /// use scooby::postgres::insert_into;
+    ///
+    /// let sql = insert_into("Dummy")
+    ///     .values(["a"])
+    ///     .on_conflict()
+    ///     .do_nothing()
+    ///     .to_string();
+    ///
+    /// assert_eq!(sql, "INSERT INTO Dummy VALUES (a) ON CONFLICT DO NOTHING");
+    /// ```
+    pub fn on_conflict(self) -> OnConflictClauseBuilder<V> {
+        OnConflictClauseBuilder::new(self)
     }
 }
 
@@ -285,6 +310,10 @@ impl<V: Values> Display for InsertInto<V> {
 
         if !self.returning.is_empty() {
             write!(f, " RETURNING {}", joined(&self.returning, ", "))?;
+        }
+
+        if let Some(on_conflict_clause) = &self.on_conflict {
+            write!(f, " {}", on_conflict_clause)?;
         }
 
         Ok(())
@@ -422,5 +451,30 @@ mod tests {
             .to_string();
 
         assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES ($1, $2)");
+    }
+
+    #[test]
+    fn on_conflict_do_nothing() {
+        let sql = insert_into("Dummy")
+            .values(["a"])
+            .on_conflict()
+            .do_nothing()
+            .to_string();
+
+        assert_correct_postgresql(&sql, "INSERT INTO Dummy VALUES (a) ON CONFLICT DO NOTHING");
+    }
+
+    #[test]
+    fn on_conflict_do_update_set() {
+        let sql = insert_into("Dummy")
+            .values(["a"])
+            .on_conflict()
+            .do_update_set([("col", "1")])
+            .to_string();
+
+        assert_correct_postgresql(
+            &sql,
+            "INSERT INTO Dummy VALUES (a) ON CONFLICT DO UPDATE SET col = 1",
+        );
     }
 }

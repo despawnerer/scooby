@@ -13,7 +13,10 @@ pub use create_table::{
     CreateTableBuilder,
 };
 pub use delete_from::{delete_from, DeleteFrom};
-pub use insert_into::{insert_into, BareInsertInto, InsertInto, InsertIntoColumnsBuilder, Values};
+pub use insert_into::{
+    insert_into, BareInsertInto, InsertInto, InsertIntoColumnsBuilder, OnConflictClauseBuilder,
+    Values,
+};
 pub use select::{from, select, FromItem, FromSelectBuilder, Joinable, OrderBy, Orderable, Select};
 pub use update::{update, BareUpdate, Update};
 

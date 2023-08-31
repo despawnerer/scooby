@@ -46,6 +46,9 @@ Supported statements, clauses and features
     - `WITH`
     - `DEFAULT VALUES`
     - `VALUES` with compile-time checking that lengths of all values are the same as columns
+    - `ON CONFLICT`
+        - `DO NOTHING`
+        - `DO UPDATE SET`
     - `RETURNING`
 
 3. [`DELETE FROM`](https://docs.rs/scooby/latest/scooby/postgres/statements/fn.delete_from.html)
@@ -111,6 +114,9 @@ insert_into("Dummy")
 
 // INSERT INTO Dummy DEFAULT VALUES
 insert_into("Dummy").default_values().to_string();
+
+// INSERT INTO Dummy DEFAULT VALUES ON CONFLICT DO NOTHING
+insert_into("Dummy").default_values().on_conflict().do_nothing().to_string();
 ```
 
 ### `DELETE FROM`

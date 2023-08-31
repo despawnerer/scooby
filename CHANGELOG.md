@@ -4,6 +4,7 @@ next
 ----
 
 - Support arbitrary expressions in `LIMIT` and `OFFSET` clauses, as well as numbers, allowing using parameter placeholders
+- Add basic support for `ON CONFLICT` clauses in `INSERT INTO` statements: specifying which conflicts is not supported yet, but that's okay
 - Rename `queries` module into `statements`, and use that terminology everywhere
 - Add a new convenience function called `from` to create `SELECT` statements by starting from the `FROM` clause (e.g. `from("Things").select(("id", "name"))`)
 - Fix a broken link in `WithClause` documentation
